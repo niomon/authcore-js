@@ -343,6 +343,38 @@ suite('widgets.js', function () {
 
         assert.match(iframe.src, /primary=%230088FF/)
       })
+
+      test('should be able to set privacyLink for Register widget', async function () {
+        // Preparing
+        const widget = new AuthCoreWidgets.Register({
+          container: 'authcore-register-widget',
+          privacyLink: 'http://0.0.0.0:1337',
+          root: 'http://0.0.0.0:1337'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /privacyLink=http%3A%2F%2F0.0.0.0%3A1337/)
+        assert.match(iframe.src, /privacyCheckbox=false/)
+      })
+
+      test('should be able to set privacyCheckbox for Register widget', async function () {
+        // Preparing
+        const widget = new AuthCoreWidgets.Register({
+          container: 'authcore-register-widget',
+          privacyLink: 'http://0.0.0.0:1337',
+          privacyCheckbox: true,
+          root: 'http://0.0.0.0:1337'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /privacyCheckbox=true/)
+      })
     })
 
     suite('Login widget', function () {

@@ -196,6 +196,8 @@ class Register extends AuthCoreWidget {
       primary = undefined,
       success = undefined,
       danger = undefined,
+      privacyLink = undefined,
+      privacyCheckbox = false,
       verification = true,
       internal = false
     } = options
@@ -211,6 +213,12 @@ class Register extends AuthCoreWidget {
     if (typeof internal !== 'boolean') {
       throw new Error('internal must be boolean')
     }
+    if (privacyLink !== undefined) {
+      privacyLink = encodeURIComponent(privacyLink)
+    }
+    if (typeof privacyCheckbox !== 'boolean') {
+      throw new Error('privacyCheckbox must be boolean')
+    }
     primary = this.buildColourCode(primary)
     success = this.buildColourCode(success)
     danger = this.buildColourCode(danger)
@@ -221,7 +229,7 @@ class Register extends AuthCoreWidget {
     this.callbacks['_successRegister'] = (data) => {
       this.widget.src = `${options.root}/verification?logo=${logo}&company=${company}&cid=${this.containerId}&primary=${primary}&success=${success}&danger=${danger}&internal=${internal}&verification=${verification}`
     }
-    this.widget.src = `${options.root}/register?logo=${logo}&company=${company}&cid=${this.containerId}&primary=${primary}&success=${success}&danger=${danger}&internal=${internal}`
+    this.widget.src = `${options.root}/register?logo=${logo}&company=${company}&cid=${this.containerId}&primary=${primary}&success=${success}&danger=${danger}&privacyLink=${privacyLink}&privacyCheckbox=${privacyCheckbox}&internal=${internal}`
   }
 }
 

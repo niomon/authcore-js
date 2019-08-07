@@ -631,7 +631,13 @@ class AuthCoreManagementClient {
           }
         })
           .then(client => {
-            this.ManagementService = client.apis.ManagementService
+            // Flat the APIs from the tag to become ManagementService
+            let apiValue = Object.values(client.apis)
+            let apiResult = apiValue.reduce((apis, api) => {
+              apis = Object.assign(apis, api)
+              return apis
+            }, {})
+            this.ManagementService = apiResult
             resolve(client.apis)
           })
           .catch(err => {

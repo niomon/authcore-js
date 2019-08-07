@@ -1060,7 +1060,13 @@ class AuthCoreAuthClient {
           }
         })
           .then(client => {
-            this.AuthService = client.apis.AuthService
+            // Flat the APIs from the tag to become AuthService
+            let apiValue = Object.values(client.apis)
+            let apiResult = apiValue.reduce((apis, api) => {
+              apis = Object.assign(apis, api)
+              return apis
+            }, {})
+            this.AuthService = apiResult
             resolve(client.apis)
           })
           .catch(err => {

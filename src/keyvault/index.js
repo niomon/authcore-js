@@ -189,7 +189,13 @@ class AuthCoreKeyVaultClient {
           }
         })
           .then(client => {
-            this.KeyVaultService = client.apis.KeyVaultService
+            // Flat the APIs from the tag to become KeyVaultService
+            let apiValue = Object.values(client.apis)
+            let apiResult = apiValue.reduce((apis, api) => {
+              apis = Object.assign(apis, api)
+              return apis
+            }, {})
+            this.KeyVaultService = apiResult
             resolve(client.apis)
           })
           .catch(err => {

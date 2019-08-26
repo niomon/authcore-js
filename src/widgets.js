@@ -90,11 +90,12 @@ class AuthCoreWidget {
     path.setAttributeNS(null, 'stroke-width', 3)
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    svg.setAttributeNS(null, 'class', 'rotate')
     svg.setAttributeNS(null, 'width', 66)
     svg.setAttributeNS(null, 'height', 66)
     svg.style['opacity'] = 0
     svg.style['transition'] = `opacity ${transitionTime}ms ease`
+    svg.style['animation'] = `spinner-border 1.5s cubic-bezier(0, 0.6, 0.36, 1) infinite`
+    svg.style['animation-delay'] = '0.4s'
     svg.appendChild(path)
 
     if (!display) {

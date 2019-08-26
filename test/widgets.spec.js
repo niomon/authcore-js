@@ -50,7 +50,6 @@ suite('widgets.js', function () {
 
       const svg = document.getElementById('authcore-sign-in-widget').getElementsByTagName('svg')[0]
       assert.equal(svg.style.opacity, '0')
-      assert.equal(svg.getAttribute('class'), 'rotate')
       assert.match(svg.style.transition, /opacity/)
 
       const path = svg.getElementsByTagName('path')[0]

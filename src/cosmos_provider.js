@@ -156,6 +156,29 @@ class AuthCoreCosmosProvider {
     dataWithSign['signatures'].push(signature)
     return dataWithSign
   }
+
+  /**
+   * Creates a signer method for @luniehq/cosmos-js.
+   *
+   * @param {string} address The address use to sign the transactions.
+   * @returns {Function} The signer method.
+   */
+  async createSigner (address) {
+    const wallets = await this._getWallets()
+    const wallet = wallets.find(wallet => wallet.address === address)
+    if (!wallet) throw new Error('account not found')
+
+    const that = this
+    return async function signer (signMessage) {
+      const data = JSON.parse(signMessage)
+      const dataWithSign = await that.approve(data, address)
+      const signObject = _.last(dataWithSign['signatures'])
+      return {
+        signature: formatBuffer.fromBase64(signObject['signature']),
+        publicKey: formatBuffer.fromBase64(signObject['pub_key']['value'])
+      }
+    }
+  }
 }
 
 exports.AuthCoreCosmosProvider = AuthCoreCosmosProvider

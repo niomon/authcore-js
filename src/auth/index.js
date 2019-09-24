@@ -1073,10 +1073,14 @@ class AuthCoreAuthClient {
           },
           responseInterceptor: (res) => {
             if (res.status === 401) {
-              this.config.callbacks['unauthorized']()
+              if (typeof this.config.callbacks.unauthorized === 'function') {
+                this.config.callbacks.unauthorized()
+              }
             }
             if (res.status === 403) {
-              this.config.callbacks['unauthenticated']()
+              if (typeof this.config.callbacks.unauthenticated === 'function') {
+                this.config.callbacks.unauthenticated()
+              }
             }
             return res
           }

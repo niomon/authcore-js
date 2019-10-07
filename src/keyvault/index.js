@@ -1,6 +1,4 @@
-// swagger wrapper
-const Swagger = require('swagger-client')
-
+const { SecretdGatewayClient } = require('../secretd/gateway.js')
 const formatBuffer = require('../utils/formatBuffer.js')
 
 /**
@@ -15,14 +13,15 @@ const formatBuffer = require('../utils/formatBuffer.js')
  * @param {string} config.accessToken The access token of the user.
  * @returns {Promise<AuthCoreKeyVaultClient>} The key vault client.
  * @example
- * const mgmtClient = await new AuthCoreKeyVaultClient({
+ * const kvClient = await new AuthCoreKeyVaultClient({
  *   apiBaseURL: 'https://auth.example.com',
  *   callbacks: {
  *     unauthenticated: function () {
  *       alert('unauthenticated!')
  *     }
  *   },
- *   accessToken: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJle...'
+ *   accessToken: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJle...',
+ *   userPrefix: '12345/',
  * })
  */
 class AuthCoreKeyVaultClient {
@@ -30,8 +29,7 @@ class AuthCoreKeyVaultClient {
     return new Promise(async (resolve, reject) => { // eslint-disable-line no-async-promise-executor
       this.config = config
 
-      // Set accessToken into API
-      await this.setAccessToken(config.accessToken)
+      this.setAccessToken(config.accessToken)
 
       resolve(this)
     })
@@ -46,7 +44,10 @@ class AuthCoreKeyVaultClient {
    */
   async setAccessToken (accessToken) {
     this.config.accessToken = accessToken
-    await this._getSwaggerClient()
+    this.gateway = new SecretdGatewayClient({
+      apiBaseURL: this.config.apiBaseURL,
+      accessToken: this.config.accessToken
+    })
   }
 
   /**
@@ -67,17 +68,11 @@ class AuthCoreKeyVaultClient {
    * @returns {Promise<object>} The secret object. Contains only the secret id.
    */
   async createSecret (type, size) {
-    const { KeyVaultService } = this
-    const performOperationResponse = await KeyVaultService.PerformOperation({
-      'body': {
-        'create_secret': {
-          'type': type,
-          'size': size
-        }
-      }
-    })
-    const performOperationResBody = performOperationResponse.body
-    return performOperationResBody
+    var args = [`${this.config.userPrefix}/keyvault/hdwallet`, 24]
+    var resp = await this.gateway.sendRequest('hdwallet_generate', args)
+    return {
+      object_id: resp
+    }
   }
 
   /**
@@ -90,16 +85,12 @@ class AuthCoreKeyVaultClient {
    * @returns {Promise<string[]>} The HD child public keys.
    */
   async listHDChildPublicKeys (pathPrefix) {
-    const { KeyVaultService } = this
-    const performOperationResponse = await KeyVaultService.PerformOperation({
-      'body': {
-        'list_hd_child_public_keys': {
-          'path': `${pathPrefix}`
-        }
-      }
-    })
-    const performOperationResBody = performOperationResponse.body
-    return performOperationResBody['hd_child_public_keys'] || []
+    var args = [`${this.config.userPrefix}/keyvault/hdwallet`, pathPrefix]
+    var resp = await this.gateway.sendRequest('hdwallet_get_extended_public_key', args)
+    if (!Array.isArray(resp) || resp.length < 1) {
+      throw new Error('invalid resposne')
+    }
+    return [resp[0]]
   }
 
   /**
@@ -149,61 +140,6 @@ class AuthCoreKeyVaultClient {
     })
     const performOperationResBody = performOperationResponse.body
     return performOperationResBody['signature']
-  }
-
-  /**
-   * Constructs key vault client including interceptor for unauthorized and unauthenticated cases
-   * to run callbacks from client implementation.
-   *
-   * @private
-   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
-   */
-  async _getSwaggerClient () {
-    let authorizations
-    if (this.config.accessToken) {
-      authorizations = {
-        'BearerAuth': {
-          'value': `Bearer ${this.config.accessToken}`
-        }
-      }
-    }
-
-    if (this.config !== undefined) {
-      await new Promise((resolve, reject) => {
-        const swaggerJsonURL = `${this.config.apiBaseURL}/api/keyvaultapi/keyvault.swagger.json`
-        Swagger({
-          url: swaggerJsonURL,
-          authorizations,
-          requestInterceptor: (req) => {
-            // Hijack the scheme to match the origin request
-            const schemePos = req.url.indexOf(':')
-            const urlWithoutScheme = req.url.slice(schemePos)
-            req.url = this.config.apiBaseURL.split(':')[0] + urlWithoutScheme
-            return req
-          },
-          responseInterceptor: (res) => {
-            if (res.status === 401) {
-              if (typeof this.config.callbacks.unauthorized === 'function') {
-                this.config.callbacks.unauthorized()
-              }
-            }
-            if (res.status === 403) {
-              if (typeof this.config.callbacks.unauthenticated === 'function') {
-                this.config.callbacks.unauthenticated()
-              }
-            }
-            return res
-          }
-        })
-          .then(client => {
-            this.KeyVaultService = client.apis.KeyVaultService
-            resolve(client.apis)
-          })
-          .catch(err => {
-            return reject(err)
-          })
-      })
-    }
   }
 }
 

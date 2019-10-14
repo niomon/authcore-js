@@ -371,9 +371,14 @@ suite('management/index.js', function () {
         apiBaseURL: 'http://0.0.0.0:13337',
         accessToken: 'AN_ACCESS_TOKEN'
       })
-      await authcoreClient.createUser(
-        'samuel', 'password', 'samuel@blocksq.com', '+85298765432', 'Samuel'
-      )
+      const user = {
+        username: 'samuel',
+        email: 'samuel@blocksq.com',
+        phone: '+85298765432',
+        password: 'password',
+        displayName: 'Samuel'
+      }
+      await authcoreClient.createUser(user)
       assert.isTrue(nock.isDone())
     })
 

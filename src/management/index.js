@@ -452,14 +452,31 @@ class AuthCoreManagementClient {
   /**
    * Creates an user.
    *
-   * @param {string} username The purposed username of the user.
-   * @param {string} password The purposed password of the user.
-   * @param {string} email The purposed email address of the user.
-   * @param {string} phone The purposed phone number of the user.
-   * @param {string} displayName The purposed display name of the user.
+   * @param {object} user The user object.
+   * @param {string} user.username The purposed username of the user.
+   * @param {string} user.email The purposed email address of the user.
+   * @param {string} user.phone The purposed phone number of the user.
+   * @param {string} user.password The purposed password of the user.
+   * @param {string} user.displayName The purposed display name of the user.
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
-  async createUser (username, password, email, phone, displayName) {
+  async createUser (user) {
+    const { username = '', phone = '', email = '', password } = user
+    let { displayName } = user
+    if (displayName === undefined || displayName === '') {
+      if (username !== '') {
+        displayName = username
+      } else if (email !== '') {
+        displayName = email
+      } else if (phone !== '') {
+        displayName = phone
+      } else {
+        throw new Error('displayName cannot be undefined')
+      }
+    }
+    if (password === undefined) {
+      throw new Error('no password')
+    }
     const { ManagementService } = this
 
     // Step 1: Create a user

@@ -270,7 +270,9 @@ class AuthCoreWidget {
 /**
  * The login widget.
  *
- * @param {boolean} [options.initialScreen] The screen that will be shown when the widget is opened.
+ * @param {string} [options.initialScreen] The screen that will be shown when the widget is opened. Only accept `signin` or `register` value.
+ * @param {string} [options.contact] The contact value to be pre-filled into contact field in Registration page or handle field in Sign In page.
+ * @param {boolean} [options.fixedContact] Boolean flag whether the contact or handle field is fixed which cannot be changed. If it is set to be `true`, contact has to have value.
  * @augments AuthCoreWidget
  */
 class Login extends AuthCoreWidget {
@@ -288,11 +290,19 @@ class Login extends AuthCoreWidget {
       throw new Error('initialScreen only support signin and register as input')
     }
     let {
-      contact = undefined
+      contact = undefined,
+      fixedContact = false
     } = options
+    if (typeof fixedContact !== 'boolean') {
+      throw new Error('fixedContact must be boolean')
+    }
+    if (!contact && fixedContact) {
+      throw new Error('fixedContact is set to be true and contact is empty. Register/sign process cannot perform as the handle value must be empty. Please fix the paramter setting.')
+    }
     contact = encodeURIComponent(contact)
+
     this.buildWidgetSrc(options, initialScreen, ({ logo, company, primaryColour, successColour, dangerColour, internal, verification, requireUsername, language }) => {
-      this.widget.src = `${options.root}/${initialScreen}?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&language=${language}&internal=${internal}&requireUsername=${requireUsername}&verification=${verification}&contact=${contact}`
+      this.widget.src = `${options.root}/${initialScreen}?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&language=${language}&internal=${internal}&requireUsername=${requireUsername}&verification=${verification}&contact=${contact}&fixedContact=${fixedContact}`
       this.callbacks['_successRegister'] = (flags) => {
         if (flags.verification !== undefined) verification = flags.verification
         this.widget.src = `${options.root}/verification?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&internal=${internal}&verification=${verification}`

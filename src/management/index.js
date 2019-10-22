@@ -607,6 +607,34 @@ class AuthCoreManagementClient {
   }
 
   /**
+   * Lists the OAuth factors for a given user.
+   *
+   * @param {number} userId The user ID.
+   * @returns {Promise<object>} The list of OAuth factors.
+   */
+  async listOAuthFactors (userId) {
+    const { ManagementService } = this
+    const listOAuthFactorsResponse = await ManagementService.ListOAuthFactors({
+      'user_id': userId
+    })
+    const listOAuthFactorsResBody = listOAuthFactorsResponse.body
+    return listOAuthFactorsResBody['oauth_factors']
+  }
+
+  /**
+   * Delete an OAuth factor for a given user.
+   *
+   * @param {number} id The ID of the OAuth factor to-be deleted.
+   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
+   */
+  async deleteOAuthFactor (id) {
+    const { ManagementService } = this
+    await ManagementService.DeleteOAuthFactor({
+      'id': id
+    })
+  }
+
+  /**
    * Constructs management client including interceptor for unauthorized and unauthenticated cases
    * to run callbacks from client implementation.
    *

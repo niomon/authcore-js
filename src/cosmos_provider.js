@@ -1,7 +1,8 @@
 const hdKey = require('hdkey')
 const bech32 = require('bech32')
 const stringify = require('fast-json-stable-stringify')
-const _ = require('lodash')
+const pick = require('lodash/pick')
+const cloneDeep = require('lodash/cloneDeep')
 
 const { AuthCoreKeyVaultClient } = require('./keyvault/index.js')
 const formatBuffer = require('./utils/formatBuffer')
@@ -139,11 +140,11 @@ class AuthCoreCosmosProvider {
     const { objectId, childId } = wallet
     const path = `${pathPrefix}/${childId}`
     const dataToSign = stringify(
-      _.pick(data, [ 'fee', 'msgs', 'chain_id', 'account_number', 'sequence', 'memo' ])
+      pick(data, [ 'fee', 'msgs', 'chain_id', 'account_number', 'sequence', 'memo' ])
     )
     const sign = await authcoreClient.cosmosSign(objectId, path, dataToSign)
 
-    let dataWithSign = _.cloneDeep(data)
+    let dataWithSign = cloneDeep(data)
     dataWithSign['signatures'] = dataWithSign['signatures'] || []
 
     const signature = {

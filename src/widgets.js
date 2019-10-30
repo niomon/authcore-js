@@ -1,4 +1,4 @@
-const _ = require('lodash')
+const pick = require('lodash/pick')
 
 const crypto = require('crypto')
 const color = require('color')
@@ -67,7 +67,7 @@ class AuthCoreWidget {
       'onTokenUpdated',
       'onTokenUpdatedFail'
     ]
-    const callbacks = _.pick(options, allowedCallbacks)
+    const callbacks = pick(options, allowedCallbacks)
 
     this.root = root
     this.containerId = formatBuffer.toHex(crypto.randomBytes(8))

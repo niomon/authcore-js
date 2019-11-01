@@ -183,13 +183,15 @@ class AuthCoreKeyVaultClient {
           },
           responseInterceptor: (res) => {
             if (res.status === 401) {
-              if (typeof this.config.callbacks.unauthorized === 'function') {
-                this.config.callbacks.unauthorized()
+              // For status 401 from api server(Unauthorized in HTTP status), it means unauthenticated in our case
+              if (typeof this.config.callbacks.unauthenticated === 'function') {
+                this.config.callbacks.unauthenticated()
               }
             }
             if (res.status === 403) {
-              if (typeof this.config.callbacks.unauthenticated === 'function') {
-                this.config.callbacks.unauthenticated()
+              // For status 403 from api server(Forbidden in HTTP status), it means unauthorized in our case
+              if (typeof this.config.callbacks.unauthorized === 'function') {
+                this.config.callbacks.unauthorized()
               }
             }
             return res

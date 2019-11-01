@@ -403,7 +403,7 @@ suite('auth/index.js', function () {
       const authClient = await new AuthCoreAuthClient({
         apiBaseURL: 'http://0.0.0.0:13337',
         callbacks: {
-          unauthorized: function () {
+          unauthenticated: function () {
             callbackCounts += 1
           }
         }
@@ -438,7 +438,7 @@ suite('auth/index.js', function () {
       const authClient = await new AuthCoreAuthClient({
         apiBaseURL: 'http://0.0.0.0:13337',
         callbacks: {
-          unauthenticated: function (accessToken) {
+          unauthorized: function (accessToken) {
             callbackCounts += 1
             assert.equal(callbackCounts, 1)
           }

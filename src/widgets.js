@@ -52,10 +52,12 @@ class AuthCoreWidget {
     animationStyle.sheet.insertRule(`@keyframes --widgets-spin { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }`, animationStyle.length)
 
     if (!options.root) {
-      options.root = window.location.origin + '/widgets'
+      options.root = new URL('widgets/', window.location.origin)
+    } else {
+      options.root = new URL(options.root)
     }
 
-    const { container, root, display = true } = options
+    const { container, display = true } = options
     // Get default callback
     const allowedCallbacks = [
       'onSuccess',
@@ -69,7 +71,8 @@ class AuthCoreWidget {
     ]
     const callbacks = pick(options, allowedCallbacks)
 
-    this.root = root
+    // Set root without last slash as postMessage requires URL path without last slash
+    this.root = options.root.toString().slice(0, -1)
     this.containerId = formatBuffer.toHex(crypto.randomBytes(8))
     this.accessToken = options.accessToken
 
@@ -150,7 +153,7 @@ class AuthCoreWidget {
       this.widget.contentWindow.postMessage({
         type: 'AuthCore_accessToken',
         data: this.accessToken
-      }, options.root)
+      }, this.root)
     }
     this.callbacks['_unauthenticated'] = () => {
     }
@@ -208,7 +211,7 @@ class AuthCoreWidget {
   buildColourCode (colour) {
     if (typeof colour === 'string') {
       try {
-        return encodeURIComponent(`#${color(colour).hex().slice(1)}`)
+        return `#${color(colour).hex().slice(1)}`
       } catch (err) {
         throw new Error('colour parameters have to be correct format')
       }
@@ -222,9 +225,9 @@ class AuthCoreWidget {
    * @private
    * @param {object} options The options object.
    * @param {string} name The name of the widget.
-   * @param {Function} extraSetting Extra setting other than building widget src. Provide all values which are sanitized from options.
+   * @returns {string} The URL for the widget.
    **/
-  buildWidgetSrc (options, name, extraSetting) {
+  buildWidgetSrc (options, name) {
     let {
       logo,
       company,
@@ -234,20 +237,14 @@ class AuthCoreWidget {
       internal = false,
       verification = true,
       requireUsername = false,
-      language = undefined
+      language = undefined,
+      // For Login widget only
+      contact = undefined,
+      fixedContact = undefined,
+      // For Profile widget only
+      showAvatar = undefined
     } = options
 
-    if (logo === undefined) {
-      logo = ''
-    } else {
-      logo = encodeURIComponent(logo)
-    }
-    if (company !== undefined) {
-      company = encodeURIComponent(company)
-    }
-    if (language !== undefined) {
-      language = encodeURIComponent(language)
-    }
     if (typeof internal !== 'boolean') {
       throw new Error('internal must be boolean')
     }
@@ -257,13 +254,54 @@ class AuthCoreWidget {
     if (typeof requireUsername !== 'boolean') {
       throw new Error('requireUsername must be boolean')
     }
+    switch (name) {
+      case 'signin':
+      case 'register':
+        if (!contact && fixedContact) {
+          throw new Error('fixedContact is set to be true and contact is empty. Register/sign process cannot perform as the handle value must be empty. Please fix the paramter setting.')
+        }
+        if (fixedContact === undefined) {
+          fixedContact = false
+        } else if (fixedContact !== undefined && typeof fixedContact !== 'boolean') {
+          throw new Error('fixedContact must be either undefined or a boolean')
+        }
+        break
+      case 'profile':
+        if (showAvatar === undefined) {
+          showAvatar = false
+        } else if (typeof showAvatar !== 'boolean') {
+          throw new Error('fixedContact must be boolean')
+        }
+    }
     primaryColour = this.buildColourCode(primaryColour)
     successColour = this.buildColourCode(successColour)
     dangerColour = this.buildColourCode(dangerColour)
-    this.widget.src = `${options.root}/${name}?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&language=${language}&internal=${internal}&requireUsername=${requireUsername}`
-    if (typeof extraSetting === 'function') {
-      extraSetting({ logo, company, primaryColour, successColour, dangerColour, internal, verification, requireUsername, language })
+    const paramsObj = {
+      cid: this.containerId,
+      logo: logo,
+      company: company,
+      primaryColour: primaryColour,
+      successColour: successColour,
+      dangerColour: dangerColour,
+      internal: internal,
+      verification: verification,
+      requireUsername: requireUsername,
+      language: language,
+      contact: contact,
+      fixedContact: fixedContact,
+      showAvatar: showAvatar
     }
+    const params = new URLSearchParams()
+    // Remove key with `undefined` as value
+    Object.keys(paramsObj).forEach((key) => {
+      if (paramsObj[key] !== undefined) {
+        params.append(key, paramsObj[key])
+      }
+    })
+    const widgetSrc = new URL(options.root)
+    widgetSrc.pathname = widgetSrc.pathname + `${name}/`
+    widgetSrc.search = params.toString()
+    return widgetSrc.toString()
   }
 }
 
@@ -289,25 +327,13 @@ class Login extends AuthCoreWidget {
     if (!allowedInitialScreen.includes(initialScreen)) {
       throw new Error('initialScreen only support signin and register as input')
     }
-    let {
-      contact = undefined,
-      fixedContact = false
-    } = options
-    if (typeof fixedContact !== 'boolean') {
-      throw new Error('fixedContact must be boolean')
-    }
-    if (!contact && fixedContact) {
-      throw new Error('fixedContact is set to be true and contact is empty. Register/sign process cannot perform as the handle value must be empty. Please fix the paramter setting.')
-    }
-    contact = encodeURIComponent(contact)
-
-    this.buildWidgetSrc(options, initialScreen, ({ logo, company, primaryColour, successColour, dangerColour, internal, verification, requireUsername, language }) => {
-      this.widget.src = `${options.root}/${initialScreen}?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&language=${language}&internal=${internal}&requireUsername=${requireUsername}&verification=${verification}&contact=${contact}&fixedContact=${fixedContact}`
-      this.callbacks['_successRegister'] = (flags) => {
-        if (flags.verification !== undefined) verification = flags.verification
-        this.widget.src = `${options.root}/verification?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&internal=${internal}&verification=${verification}`
+    this.widget.src = this.buildWidgetSrc(options, initialScreen)
+    this.callbacks['_successRegister'] = (flags) => {
+      if (flags.verification !== undefined) {
+        options.verification = flags.verification
       }
-    })
+      this.widget.src = this.buildWidgetSrc(options, 'verification')
+    }
   }
 }
 
@@ -319,7 +345,7 @@ class Login extends AuthCoreWidget {
 class Verification extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    this.buildWidgetSrc(options, 'verification')
+    this.widget.src = this.buildWidgetSrc(options, 'verification')
   }
 }
 
@@ -331,7 +357,7 @@ class Verification extends AuthCoreWidget {
 class Contacts extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    this.buildWidgetSrc(options, 'contacts')
+    this.widget.src = this.buildWidgetSrc(options, 'contacts')
   }
 }
 
@@ -345,12 +371,7 @@ class Contacts extends AuthCoreWidget {
 class Profile extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    const {
-      showAvatar = false
-    } = options
-    this.buildWidgetSrc(options, 'profile', ({ logo, company, primaryColour, successColour, dangerColour, internal, verification, requireUsername, language }) => {
-      this.widget.src = `${options.root}/profile?logo=${logo}&company=${company}&cid=${this.containerId}&primaryColour=${primaryColour}&successColour=${successColour}&dangerColour=${dangerColour}&language=${language}&internal=${internal}&requireUsername=${requireUsername}&showAvatar=${showAvatar}`
-    })
+    this.widget.src = this.buildWidgetSrc(options, 'profile')
   }
 }
 
@@ -362,7 +383,7 @@ class Profile extends AuthCoreWidget {
 class Settings extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    this.buildWidgetSrc(options, 'settings')
+    this.widget.src = this.buildWidgetSrc(options, 'settings')
   }
 }
 
@@ -374,7 +395,7 @@ class Settings extends AuthCoreWidget {
 class EthereumSignApproval extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    this.buildWidgetSrc(options, 'ethereum-sign-approval')
+    this.widget.src = this.buildWidgetSrc(options, 'ethereum-sign-approval')
     this.callbacks['_onEthereumSignApproved'] = () => {
       options.approve()
       this.destroy()
@@ -394,7 +415,7 @@ class EthereumSignApproval extends AuthCoreWidget {
 class CosmosSignApproval extends AuthCoreWidget {
   constructor (options) {
     super(options)
-    this.buildWidgetSrc(options, 'cosmos-sign-approval')
+    this.widget.src = this.buildWidgetSrc(options, 'cosmos-sign-approval')
     this.callbacks['_onCosmosSignApproved'] = () => {
       options.approve()
       this.destroy()
@@ -417,7 +438,7 @@ class RefreshToken extends AuthCoreWidget {
     super(options)
     let containerClass = 'refresh-token'
     this.widget.className = containerClass
-    this.widget.src = `${options.root}/refresh-token?cid=${this.containerId}`
+    this.widget.src = this.buildWidgetSrc(options, 'refresh-token')
     this.callbacks['_onTokenUpdated'] = () => {
       // Remove all refresh token widgets
       const elms = document.getElementsByClassName(containerClass)

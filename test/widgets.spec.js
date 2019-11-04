@@ -676,7 +676,9 @@ suite('widgets.js', function () {
       suite('RefreshToken widget', function () {
         test('should be able to mount an iframe', async function () {
           // Preparing
-          new AuthCoreWidgets.RefreshToken({})
+          new AuthCoreWidgets.RefreshToken({
+            root: 'http://0.0.0.0:1337'
+          })
 
           // Testing
           const iframe = document.getElementsByTagName('iframe')[0]

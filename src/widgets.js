@@ -56,6 +56,8 @@ class AuthCoreWidget {
     } else {
       options.root = new URL(options.root)
     }
+    // Make sure '/' exists at the end of the pathname
+    options.root.pathname = options.root.pathname.replace(/\/?$/, '/')
 
     const { container, display = true } = options
     // Get default callback

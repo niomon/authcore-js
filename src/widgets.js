@@ -71,8 +71,7 @@ class AuthCoreWidget {
     ]
     const callbacks = pick(options, allowedCallbacks)
 
-    // Set root without last slash as postMessage requires URL path without last slash
-    this.root = options.root.toString().slice(0, -1)
+    this.origin = options.root.origin.toString()
     this.containerId = formatBuffer.toHex(crypto.randomBytes(8))
     this.accessToken = options.accessToken
 
@@ -153,7 +152,7 @@ class AuthCoreWidget {
       this.widget.contentWindow.postMessage({
         type: 'AuthCore_accessToken',
         data: this.accessToken
-      }, this.root)
+      }, this.origin)
     }
     this.callbacks['_unauthenticated'] = () => {
     }
@@ -198,7 +197,7 @@ class AuthCoreWidget {
     this.widget.contentWindow.postMessage({
       type: 'AuthCore_accessToken',
       data: accessToken
-    }, this.root)
+    }, this.origin)
   }
 
   /**
@@ -258,11 +257,11 @@ class AuthCoreWidget {
       case 'signin':
       case 'register':
         if (!contact && fixedContact) {
-          throw new Error('fixedContact is set to be true and contact is empty. Register/sign process cannot perform as the handle value must be empty. Please fix the paramter setting.')
+          throw new Error('fixedContact is set to be true and contact is empty. Register/sign process cannot perform as the handle value must be empty. Please fix the parameter setting.')
         }
         if (fixedContact === undefined) {
           fixedContact = false
-        } else if (fixedContact !== undefined && typeof fixedContact !== 'boolean') {
+        } else if (typeof fixedContact !== 'boolean') {
           throw new Error('fixedContact must be either undefined or a boolean')
         }
         break

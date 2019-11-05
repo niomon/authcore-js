@@ -242,6 +242,8 @@ class AuthCoreWidget {
       // For Login widget only
       contact = undefined,
       fixedContact = undefined,
+      privacyLink = undefined,
+      privacyCheckbox = undefined,
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -265,6 +267,12 @@ class AuthCoreWidget {
           fixedContact = false
         } else if (typeof fixedContact !== 'boolean') {
           throw new Error('fixedContact must be either undefined or a boolean')
+        }
+        if (typeof privacyLink !== 'undefined' && typeof privacyLink !== 'string') {
+          throw new Error('privacyLink must be a string')
+        }
+        if (typeof privacyCheckbox !== 'undefined' && typeof privacyCheckbox !== 'boolean') {
+          throw new Error('privacyCheckbox must be a boolean')
         }
         break
       case 'profile':
@@ -290,6 +298,8 @@ class AuthCoreWidget {
       language: language,
       contact: contact,
       fixedContact: fixedContact,
+      privacyLink: privacyLink,
+      privacyCheckbox: privacyCheckbox,
       showAvatar: showAvatar
     }
     const params = new URLSearchParams()

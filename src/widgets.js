@@ -59,7 +59,11 @@ class AuthCoreWidget {
     // Make sure '/' exists at the end of the pathname
     options.root.pathname = options.root.pathname.replace(/\/?$/, '/')
 
-    const { container, display = true } = options
+    const {
+      container,
+      display = true,
+      primaryColour = '#3051e3' // Primary colour to be referenced from blocksq/bootstrap-vue library
+    } = options
     // Get default callback
     const allowedCallbacks = [
       'onSuccess',
@@ -96,8 +100,7 @@ class AuthCoreWidget {
     path.setAttributeNS(null, 'd', 'M31.5,0A31.473,31.473,0,1,0,43.467,2.353')
     path.setAttributeNS(null, 'transform', 'translate(1.5 1.5)')
     path.setAttributeNS(null, 'fill', 'none')
-    // TODO: Set to be fixed at this moment, should be customizable when the loading spinner in widgets is also customizable, see https://gitlab.com/blocksq/authcore/issues/312
-    path.setAttributeNS(null, 'stroke', '#1100fa')
+    path.setAttributeNS(null, 'stroke', primaryColour)
     path.setAttributeNS(null, 'stroke-linecap', 'round')
     path.setAttributeNS(null, 'stroke-width', 3)
 

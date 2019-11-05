@@ -244,6 +244,60 @@ suite('widgets.js', function () {
       assert.equal(widget.accessToken, 'newAccessToken')
     })
 
+    suite('ensure \'/\' should still exists for the result', function () {
+      test('no pathname no slash at the end', function () {
+        new AuthCoreWidgets.Login({
+          container: 'authcore-register-widget',
+          root: 'http://0.0.0.0:1337'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin\//)
+      })
+
+      test('no pathname with slash at the end', function () {
+        new AuthCoreWidgets.Login({
+          container: 'authcore-register-widget',
+          root: 'http://0.0.0.0:1337/'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin\//)
+      })
+
+      test('with pathname no slash at the end', function () {
+        new AuthCoreWidgets.Login({
+          container: 'authcore-register-widget',
+          root: 'http://0.0.0.0:1337/widgets'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/widgets\/signin\//)
+      })
+
+      test('with pathname with slash at the end', function () {
+        new AuthCoreWidgets.Login({
+          container: 'authcore-register-widget',
+          root: 'http://0.0.0.0:1337/widgets/'
+        })
+
+        // Testing
+        const iframe = document.getElementById('authcore-register-widget').getElementsByTagName('iframe')[0]
+        assert.exists(iframe)
+
+        assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/widgets\/signin\//)
+      })
+    })
+
     suite('requireUsername parameter setting for widget', function () {
       test('should not require username by default', async function () {
         // Preparing

@@ -433,37 +433,50 @@ class AuthCoreAuthClient {
   async changePassword (oldPassword, newPassword) {
     const { AuthService } = this
 
-    const startChangePasswordResponse = await AuthService.StartChangePassword()
-    const startChangePasswordResBody = startChangePasswordResponse.body
-    const oldSalt = formatBuffer.fromBase64(startChangePasswordResBody['salt'])
+    if (oldPassword !== '') {
+      const startChangePasswordResponse = await AuthService.StartChangePassword()
+      const startChangePasswordResBody = startChangePasswordResponse.body
+      const oldSalt = formatBuffer.fromBase64(startChangePasswordResBody['salt'])
 
-    const oldState = await spake2.spake2.startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
-    const oldMessage = oldState.getMessage()
-    const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
-      'body': {
-        'message': formatBuffer.toBase64(oldMessage)
-      }
-    })
-    const changePasswordKeyExchangeResBody = changePasswordKeyExchangeResponse.body
-    const incomingMessage = formatBuffer.fromBase64(changePasswordKeyExchangeResBody['message'])
-    const oldChallengeToken = changePasswordKeyExchangeResBody['token']
-
-    const sharedSecret = oldState.finish(incomingMessage)
-    const confirmation = sharedSecret.getConfirmation()
-    const { salt, verifier } = await spake2.createVerifier(newPassword)
-    await AuthService.FinishChangePassword({
-      'body': {
-        'old_password_response': {
-          'token': oldChallengeToken,
-          'confirmation': formatBuffer.toBase64(confirmation)
-        },
-        'password_verifier': {
-          'salt': salt,
-          'verifierW0': verifier.w0,
-          'verifierL': verifier.L
+      const oldState = await spake2.spake2.startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
+      const oldMessage = oldState.getMessage()
+      const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
+        'body': {
+          'message': formatBuffer.toBase64(oldMessage)
         }
-      }
-    })
+      })
+      const changePasswordKeyExchangeResBody = changePasswordKeyExchangeResponse.body
+      const incomingMessage = formatBuffer.fromBase64(changePasswordKeyExchangeResBody['message'])
+      const oldChallengeToken = changePasswordKeyExchangeResBody['token']
+
+      const sharedSecret = oldState.finish(incomingMessage)
+      const confirmation = sharedSecret.getConfirmation()
+      const { salt, verifier } = await spake2.createVerifier(newPassword)
+      await AuthService.FinishChangePassword({
+        'body': {
+          'old_password_response': {
+            'token': oldChallengeToken,
+            'confirmation': formatBuffer.toBase64(confirmation)
+          },
+          'password_verifier': {
+            'salt': salt,
+            'verifierW0': verifier.w0,
+            'verifierL': verifier.L
+          }
+        }
+      })
+    } else {
+      const { salt, verifier } = await spake2.createVerifier(newPassword)
+      await AuthService.FinishChangePassword({
+        'body': {
+          'password_verifier': {
+            'salt': salt,
+            'verifierW0': verifier.w0,
+            'verifierL': verifier.L
+          }
+        }
+      })
+    }
   }
 
   /**

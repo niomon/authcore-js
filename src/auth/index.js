@@ -926,7 +926,10 @@ class AuthCoreAuthClient {
     })
     const startAuthenticateOAuthResBody = startAuthenticateOAuthResponse.body
 
-    return startAuthenticateOAuthResBody['oauth_endpoint_uri']
+    return {
+      endpointUri: startAuthenticateOAuthResBody['oauth_endpoint_uri'],
+      state: startAuthenticateOAuthResBody['state']
+    }
   }
 
   /**
@@ -989,7 +992,10 @@ class AuthCoreAuthClient {
     })
     const startCreateOAuthFactorResBody = startCreateOAuthFactorResponse.body
 
-    return startCreateOAuthFactorResBody['oauth_endpoint_uri']
+    return {
+      endpointUri: startCreateOAuthFactorResBody['oauth_endpoint_uri'],
+      state: startCreateOAuthFactorResBody['state']
+    }
   }
 
   /**

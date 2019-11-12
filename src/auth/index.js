@@ -71,14 +71,18 @@ class AuthCoreAuthClient {
    *
    * @public
    * @param {string} handle A handle of a user. Could be username, email address or phone number.
+   * @param {string} [codeChallenge] The code challenge for PKCE.
+   * @param {string} [codeChallengeMethod] The challenge method for PKCE. Must either be "plain" or "S256".
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
-  async startAuthentication (handle) {
+  async startAuthentication (handle, codeChallenge, codeChallengeMethod) {
     const { AuthService } = this
 
     const startPasswordAuthnResponse = await AuthService.StartPasswordAuthn({
       'body': {
-        'user_handle': handle
+        'user_handle': handle,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': codeChallengeMethod
       }
     })
     const startPasswordAuthnResBody = startPasswordAuthnResponse.body
@@ -824,16 +828,20 @@ class AuthCoreAuthClient {
    * @param {string} scope The scope of the access request.
    * @param {string} state An opaque value used by the client to maintain the state between the
    *        request and callback.
+   * @param {string} codeChallenge The code challenge for PKCE.
+   * @param {string} codeChallengeMethod The code challenge method for PKCE.
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
-  async validateOAuthParameters (responseType, clientId, redirectUri, scope, state) {
+  async validateOAuthParameters (responseType, clientId, redirectUri, scope, state, codeChallenge, codeChallengeMethod) {
     const { AuthService } = this
     await AuthService.ValidateOAuthParameters({
       'response_type': responseType,
       'client_id': clientId,
       'redirect_uri': redirectUri,
       'scope': scope,
-      'state': state
+      'state': state,
+      'code_challenge': codeChallenge,
+      'code_challenge_method': codeChallengeMethod
     })
   }
 

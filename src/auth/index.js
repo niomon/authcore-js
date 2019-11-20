@@ -220,6 +220,27 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * Create an authorization token. Used when in registration flow for OAuth flow.
+   *
+   * @public
+   * @param {string} codeChallenge The code challenge from client in PKCE case.
+   * @param {string} codeChallengeMethod The code challenge method from client in PKCE case, must be either 'plain' or 'S256'.
+   * @returns {Promise<AuthorizationToken>} The authorization token.
+   */
+  async createAuthorizationToken (codeChallenge, codeChallengeMethod) {
+    const { AuthService } = this
+
+    const createAuthorizationTokenResponse = await AuthService.CreateAuthorizationToken({
+      'body': {
+        'code_challenge': codeChallenge,
+        'code_challenge_method': codeChallengeMethod
+      }
+    })
+    const createAuthorizationTokenResBody = createAuthorizationTokenResponse.body
+    return createAuthorizationTokenResBody['authorization_token']
+  }
+
+  /**
    * Creates an access token from the authorization token.
    *
    * @public
@@ -1168,6 +1189,10 @@ class AuthCoreAuthClient {
  * @property {object} password_challenge The challenge for the password under the SPAKE protocol.
  * @property {string} authorization_token The authorization token if the authentication flow is
  *           completed.
+ */
+
+/**
+ * @typedef {string} AuthorizationToken The `AuthorizationToken` represents authorization code from server.
  */
 
 /**

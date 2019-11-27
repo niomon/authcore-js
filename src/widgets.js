@@ -73,7 +73,8 @@ class AuthCoreWidget {
       'onCosmosSignApproved',
       'onCosmosSignRejected',
       'onTokenUpdated',
-      'onTokenUpdatedFail'
+      'onTokenUpdatedFail',
+      'onRefreshTokenRemoved'
     ]
     const callbacks = pick(options, allowedCallbacks)
 
@@ -442,6 +443,28 @@ class CosmosSignApproval extends AuthCoreWidget {
 }
 
 /**
+ * The sign out widget that is used to invalidate refresh token.
+ *
+ * @augments AuthCoreWidget
+ */
+class SignOut extends AuthCoreWidget {
+  constructor (options) {
+    options.display = false
+    super(options)
+    const containerClass = 'signout'
+    this.widget.className = containerClass
+    this.widget.src = this.buildWidgetSrc(options, 'signout')
+    this.callbacks['_onRefreshTokenRemoved'] = () => {
+      // Remove all sign out widgets
+      const elms = document.getElementsByClassName(containerClass)
+      while (elms.length > 0) {
+        elms[0].remove()
+      }
+    }
+  }
+}
+
+/**
  * The refresh token widget that is used to refresh an access token.
  *
  * @augments AuthCoreWidget
@@ -450,10 +473,10 @@ class RefreshToken extends AuthCoreWidget {
   constructor (options) {
     options.display = false
     super(options)
-    let containerClass = 'refresh-token'
+    const containerClass = 'refresh-token'
     this.widget.className = containerClass
     this.widget.src = this.buildWidgetSrc(options, 'refresh-token')
-    this.callbacks['_onTokenUpdated'] = () => {
+    this.callbacks['_onTokenUpdated'] = (data) => {
       // Remove all refresh token widgets
       const elms = document.getElementsByClassName(containerClass)
       while (elms.length > 0) {
@@ -477,6 +500,7 @@ const AuthCoreWidgets = {
   Settings,
   EthereumSignApproval,
   CosmosSignApproval,
+  SignOut,
   RefreshToken
 }
 

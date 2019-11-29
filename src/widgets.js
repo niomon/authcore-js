@@ -247,6 +247,7 @@ class AuthCoreWidget {
       fixedContact = undefined,
       privacyLink = undefined,
       privacyCheckbox = undefined,
+      setRefreshToken = false,
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -277,6 +278,9 @@ class AuthCoreWidget {
         if (typeof privacyCheckbox !== 'undefined' && typeof privacyCheckbox !== 'boolean') {
           throw new Error('privacyCheckbox must be a boolean')
         }
+        if (typeof setRefreshToken !== 'boolean') {
+          throw new Error('setRefreshToken must be a boolean')
+        }
         break
       case 'profile':
         if (showAvatar === undefined) {
@@ -303,6 +307,7 @@ class AuthCoreWidget {
       fixedContact: fixedContact,
       privacyLink: privacyLink,
       privacyCheckbox: privacyCheckbox,
+      setRefreshToken: setRefreshToken,
       showAvatar: showAvatar
     }
     const params = new URLSearchParams()

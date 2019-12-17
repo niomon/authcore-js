@@ -249,6 +249,7 @@ class AuthCoreWidget {
       privacyLink = undefined,
       privacyCheckbox = undefined,
       setRefreshToken = false,
+      successRedirectUrl = '',
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -309,7 +310,8 @@ class AuthCoreWidget {
       privacyLink: privacyLink,
       privacyCheckbox: privacyCheckbox,
       setRefreshToken: setRefreshToken,
-      showAvatar: showAvatar
+      showAvatar: showAvatar,
+      successRedirectUrl: successRedirectUrl
     }
     const params = new URLSearchParams()
     // Remove key with `undefined` as value

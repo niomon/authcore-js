@@ -634,6 +634,58 @@ class AuthCoreManagementClient {
     })
   }
 
+  async listTemplates (type) {
+    const { ManagementService } = this
+    const listTemplateResponse = await ManagementService.ListTemplates({
+      'type': type
+    })
+    const listTemplateResBody = listTemplateResponse['body']
+    return listTemplateResBody
+  }
+
+  async getTemplate (type, language, name) {
+    const { ManagementService } = this
+    const getTemplateResponse = await ManagementService.GetTemplate({
+      'type': type,
+      'language': language,
+      'name': name
+    })
+    const getTemplateResBody = getTemplateResponse['body']
+    return getTemplateResBody
+  }
+
+  async createMailTemplate (language, name, title, htmlTemplate, textTemplate) {
+    const { ManagementService } = this
+    await ManagementService.CreateTemplate({
+      'body': {
+        'template': {
+          'language': language,
+          'name': name,
+          'mail_template': {
+            'subject': title,
+            'html_template': htmlTemplate,
+            'text_template': textTemplate
+          }
+        }
+      }
+    })
+  }
+
+  async createSMSTemplate (language, name, template) {
+    const { ManagementService } = this
+    await ManagementService.CreateTemplate({
+      'body': {
+        'template': {
+          'language': language,
+          'name': name,
+          'sms_template': {
+            'template': template
+          }
+        }
+      }
+    })
+  }
+
   /**
    * Constructs management client including interceptor for unauthorized and unauthenticated cases
    * to run callbacks from client implementation.

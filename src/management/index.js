@@ -67,15 +67,17 @@ class AuthCoreManagementClient {
    * @param {number} pageSize The number of users per page.
    * @param {string} pageToken The page token.
    * @param {boolean} ascending Boolean flag indicating the order of the users.
+   * @param {string} sortKey The key to be sorted for the list.
    * @returns {Promise<object>} The list of users.
    */
-  async listUsers (pageSize, pageToken, ascending) {
+  async listUsers (pageSize, pageToken, ascending, sortKey = '') {
     const { ManagementService } = this
 
     const listUsersResponse = await ManagementService.ListUsers({
       'page_size': pageSize,
       'page_token': pageToken,
-      'ascending': ascending
+      'ascending': ascending,
+      'sort_key': sortKey
     })
     const listUsersResBody = listUsersResponse.body
     return listUsersResBody

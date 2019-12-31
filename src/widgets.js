@@ -74,7 +74,8 @@ class AuthCoreWidget {
       'onCosmosSignRejected',
       'onTokenUpdated',
       'onTokenUpdatedFail',
-      'onRefreshTokenRemoved'
+      'onRefreshTokenRemoved',
+      'redirectSuccessUrl'
     ]
     const callbacks = pick(options, allowedCallbacks)
 
@@ -161,6 +162,9 @@ class AuthCoreWidget {
       }, this.origin)
     }
     this.callbacks['_unauthenticated'] = () => {
+    }
+    this.callbacks['_redirectSuccessUrl'] = (data) => {
+      window.location = data.redirectUrl
     }
 
     // We are writing arrow functions as we want a specific scope for `this`.
@@ -249,6 +253,7 @@ class AuthCoreWidget {
       privacyLink = undefined,
       privacyCheckbox = undefined,
       setRefreshToken = false,
+      successRedirectUrl = '',
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -309,7 +314,8 @@ class AuthCoreWidget {
       privacyLink: privacyLink,
       privacyCheckbox: privacyCheckbox,
       setRefreshToken: setRefreshToken,
-      showAvatar: showAvatar
+      showAvatar: showAvatar,
+      successRedirectUrl: successRedirectUrl
     }
     const params = new URLSearchParams()
     // Remove key with `undefined` as value

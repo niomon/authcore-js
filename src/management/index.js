@@ -656,14 +656,14 @@ class AuthCoreManagementClient {
     return getTemplateResBody
   }
 
-  async createMailTemplate (language, name, title, htmlTemplate, textTemplate) {
+  async createEmailTemplate (language, name, title, htmlTemplate, textTemplate) {
     const { ManagementService } = this
     await ManagementService.CreateTemplate({
       'body': {
         'template': {
           'language': language,
           'name': name,
-          'mail_template': {
+          'email_template': {
             'subject': title,
             'html_template': htmlTemplate,
             'text_template': textTemplate

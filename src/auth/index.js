@@ -1079,6 +1079,22 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * Gets the widgets settings for the current widgets.
+   *
+   * @public
+   * @returns {Promise<WidgetsSettings>} The widgets settings object.
+   */
+  async getWidgetsSettings () {
+    const { AuthService } = this
+
+    const getWidgetsSettingsResponse = await AuthService.GetWidgetsSettings()
+    const getWidgetsSettingsResBody = getWidgetsSettingsResponse.body
+    return {
+      widgetsSettings: getWidgetsSettingsResBody['widgets_settings']
+    }
+  }
+
+  /**
    * Signs out from the current session.
    *
    * @public
@@ -1207,6 +1223,11 @@ class AuthCoreAuthClient {
 /**
  * @typedef {object} Metadata
  * @property {string} userMetadata The user metadata.
+ */
+
+/**
+ * @typedef {object} WidgetsSettings
+ * @property {string} widgets_settings The widgets settings.
  */
 
 exports.AuthCoreAuthClient = AuthCoreAuthClient

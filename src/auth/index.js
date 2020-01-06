@@ -73,16 +73,18 @@ class AuthCoreAuthClient {
    * @param {string} handle A handle of a user. Could be username, email address or phone number.
    * @param {string} [codeChallenge] The code challenge for PKCE.
    * @param {string} [codeChallengeMethod] The challenge method for PKCE. Must either be "plain" or "S256".
+   * @param {string} [successRedirectURL] The redirect URL when authenticated successfully.
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
-  async startAuthentication (handle, codeChallenge, codeChallengeMethod) {
+  async startAuthentication (handle, codeChallenge, codeChallengeMethod, successRedirectURL) {
     const { AuthService } = this
 
     const startPasswordAuthnResponse = await AuthService.StartPasswordAuthn({
       'body': {
         'user_handle': handle,
         'code_challenge': codeChallenge,
-        'code_challenge_method': codeChallengeMethod
+        'code_challenge_method': codeChallengeMethod,
+        'success_redirect_url': successRedirectURL
       }
     })
     const startPasswordAuthnResBody = startPasswordAuthnResponse.body
@@ -958,13 +960,15 @@ class AuthCoreAuthClient {
    *
    * @public
    * @param {string} service The external OAuth service used.
+   * @param {string} [successRedirectURL] The redirect URL when authenticated successfully.
    * @returns {Promise<string>} The URI of the OAuth endpoint.
    */
-  async startAuthenticateOAuth (service) {
+  async startAuthenticateOAuth (service, successRedirectURL) {
     const { AuthService } = this
 
     const startAuthenticateOAuthResponse = await AuthService.StartAuthenticateOAuth({
-      'service': service.toUpperCase()
+      'service': service.toUpperCase(),
+      'success_redirect_url': successRedirectURL
     })
     const startAuthenticateOAuthResBody = startAuthenticateOAuthResponse.body
 

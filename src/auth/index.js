@@ -394,9 +394,10 @@ class AuthCoreAuthClient {
    * @param {object} oauth The OAuth object.
    * @param {string} oauth.accessToken The access token for OAuth.
    * @param {string} oauth.service The service for OAuth.
+   * @param {boolean} contactVerified A flag indicating that the contact is already verified by the OAuth factor.
    * @returns {Promise<AccessToken>} The access token.
    */
-  async createUserByOAuth (user, oauth) {
+  async createUserByOAuth (user, oauth, contactVerified) {
     const { username = '', phone = '', email = '' } = user
     let { displayName } = user
     if (displayName === undefined) {
@@ -419,7 +420,7 @@ class AuthCoreAuthClient {
         'email': email,
         'phone': phone,
         'display_name': displayName,
-        'send_verification': false
+        'send_verification': !contactVerified
       }
     })
     const createUserResBody = createUserResponse.body
@@ -427,16 +428,19 @@ class AuthCoreAuthClient {
     // We need to replace the old AuthService to use the new instance with access token.
     AuthService = this.AuthService
 
-    // Step 2: Verify the contact by OAuth access token
-    await AuthService.CompleteVerifyContact({
-      'body': {
-        'oauth_access_token': {
-          'access_token': oauth.accessToken,
-          'id_token': oauth.idToken,
-          'service': oauth.service
+    // Step 2: Verify the contact by OAuth access token. Omits when the contact is not verified by
+    // the OAuth provider.
+    if (contactVerified) {
+      await AuthService.CompleteVerifyContact({
+        'body': {
+          'oauth_access_token': {
+            'access_token': oauth.accessToken,
+            'id_token': oauth.idToken,
+            'service': oauth.service
+          }
         }
-      }
-    })
+      })
+    }
 
     // Step 3: Create a OAuth factor by OAuth access token
     await AuthService.CreateOAuthFactorByAccessToken({

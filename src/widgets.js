@@ -41,6 +41,7 @@ function clearChildren (id) {
  * @param {Function} options.onCosmosSignRejected Callback function when the Cosmos Signing is rejected.
  * @param {Function} options.onTokenUpdated Callback function when the access token is updated successfully.
  * @param {Function} options.onTokenUpdatedFail Callback function when the access token cannot be updated.
+ * @param {Function} options.analyticsHook Hook for the analytics.
  * @returns {AuthCoreWidget} The widget.
  */
 class AuthCoreWidget {
@@ -78,6 +79,7 @@ class AuthCoreWidget {
       'redirectSuccessUrl'
     ]
     const callbacks = pick(options, allowedCallbacks)
+    this.analyticsHook = options.analyticsHook
 
     this.origin = options.root.origin.toString()
     this.containerId = formatBuffer.toHex(crypto.randomBytes(8))
@@ -183,6 +185,9 @@ class AuthCoreWidget {
       }
       if (typeof this.callbacks[privCbName] === 'function') {
         this.callbacks[privCbName](data)
+      }
+      if (cbName === 'analytics' && typeof this.analyticsHook === 'function') {
+        this.analyticsHook(data.type, data.data)
       }
     })
   }

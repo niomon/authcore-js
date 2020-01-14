@@ -115,6 +115,7 @@ class AuthCoreWidget {
     svg.style['animation-delay'] = '0.4s'
     svg.style['opacity'] = 0
     svg.style['transition'] = `opacity ${transitionTime}ms ease`
+    svg.style['margin-top'] = '1.5rem'
     svg.appendChild(path)
 
     if (!display) {

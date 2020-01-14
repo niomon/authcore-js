@@ -50,6 +50,7 @@ suite('widgets.js', function () {
       assert.match(svg.style.transition, /opacity/)
       assert.match(svg.style.animation, /--widgets-spin/)
       assert.equal(svg.style['animation-delay'], '0.4s')
+      assert.equal(svg.style['margin-top'], '1.5rem')
 
       const path = svg.getElementsByTagName('path')[0]
       assert.equal(path.getAttribute('fill'), 'none')

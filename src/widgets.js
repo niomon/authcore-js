@@ -259,6 +259,7 @@ class AuthCoreWidget {
       privacyCheckbox = undefined,
       setRefreshToken = false,
       successRedirectUrl = '',
+      socialLoginPaneStyle = 'bottom',
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -272,6 +273,10 @@ class AuthCoreWidget {
     if (typeof requireUsername !== 'boolean') {
       throw new Error('requireUsername must be boolean')
     }
+    const allowedSocialLoginPaneStyle = [
+      'top',
+      'bottom'
+    ]
     switch (name) {
       case 'signin':
       case 'register':
@@ -292,6 +297,9 @@ class AuthCoreWidget {
         if (typeof setRefreshToken !== 'boolean') {
           throw new Error('setRefreshToken must be a boolean')
         }
+        if (!allowedSocialLoginPaneStyle.includes(socialLoginPaneStyle)) {
+          throw new Error('socialLoginPaneStyle only support top and bottom as input')
+        }
         break
       case 'profile':
         if (showAvatar === undefined) {
@@ -299,6 +307,7 @@ class AuthCoreWidget {
         } else if (typeof showAvatar !== 'boolean') {
           throw new Error('fixedContact must be boolean')
         }
+        break
     }
     primaryColour = this.buildColourCode(primaryColour)
     successColour = this.buildColourCode(successColour)
@@ -319,6 +328,7 @@ class AuthCoreWidget {
       privacyLink: privacyLink,
       privacyCheckbox: privacyCheckbox,
       setRefreshToken: setRefreshToken,
+      socialLoginPaneStyle: socialLoginPaneStyle,
       showAvatar: showAvatar,
       successRedirectUrl: successRedirectUrl
     }

@@ -531,6 +531,62 @@ suite('widgets.js', function () {
         assert.match(iframe.src, /contact=test%40example.com/)
       })
 
+      suite('Related socialLoginPaneStyle parameter', function () {
+        test('should have default bottom socialLoginPaneStyle parameter', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneStyle=bottom/)
+        })
+        test('should be able to set socialLoginPaneStyle parameter to top', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            socialLoginPaneStyle: 'top'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneStyle=top/)
+        })
+        test('should be able to set socialLoginPaneStyle parameter to bottom', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            socialLoginPaneStyle: 'bottom'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneStyle=bottom/)
+        })
+        test('should throw error if socialLoginPaneStyle parameter is not top or bottom', async function () {
+          assert.throws(() => {
+            new AuthCoreWidgets.Login({
+              container: 'authcore-sign-in-widget',
+              socialLoginPaneStyle: 'notallow',
+              root: 'http://0.0.0.0:1337'
+            })
+          }, Error, 'socialLoginPaneStyle only support top and bottom as input')
+        })
+      })
+
       test('default Login widget to have login as initial screen', async function () {
         // Preparing
         new AuthCoreWidgets.Login({

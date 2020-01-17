@@ -640,6 +640,12 @@ class AuthCoreManagementClient {
     })
   }
 
+  /**
+   * List templates for email or SMS.
+   *
+   * @param {string} type The type of templates shall be listed.
+   * @returns {Promise<object>} The list of templates.
+   */
   async listTemplates (type) {
     const { ManagementService } = this
     const listTemplateResponse = await ManagementService.ListTemplates({
@@ -649,6 +655,14 @@ class AuthCoreManagementClient {
     return listTemplateResBody
   }
 
+  /**
+   * Get template from type, language and name.
+   *
+   * @param {string} type The type of templates shall be get.
+   * @param {string} language The language of templates shall be get.
+   * @param {string} name The name of templates shall be get.
+   * @returns {Promise<object>} The result of template.
+   */
   async getTemplate (type, language, name) {
     const { ManagementService } = this
     const getTemplateResponse = await ManagementService.GetTemplate({
@@ -660,6 +674,15 @@ class AuthCoreManagementClient {
     return getTemplateResBody
   }
 
+  /**
+   * Create or replace email template.
+   *
+   * @param {string} language The language of template shall be modified.
+   * @param {string} name The name of template shall be modified.
+   * @param {string} title The title of template shall be modified.
+   * @param {string} htmlTemplate The HTML template shall be modified.
+   * @param {string} textTemplate The text template shall be modified.
+   */
   async createEmailTemplate (language, name, title, htmlTemplate, textTemplate) {
     const { ManagementService } = this
     await ManagementService.CreateTemplate({
@@ -677,6 +700,13 @@ class AuthCoreManagementClient {
     })
   }
 
+  /**
+   * Create or replace SMS template.
+   *
+   * @param {string} language The language of template shall be modified.
+   * @param {string} name The name of template shall be modified.
+   * @param {string} template The text template shall be modified.
+   */
   async createSMSTemplate (language, name, template) {
     const { ManagementService } = this
     await ManagementService.CreateTemplate({
@@ -689,6 +719,22 @@ class AuthCoreManagementClient {
           }
         }
       }
+    })
+  }
+
+  /**
+   * Reset template to be default one.
+   *
+   * @param {string} type The type of template shall be reset, either email or sms.
+   * @param {string} language The language of template shall be reset.
+   * @param {string} name The name of template shall be rest.
+   */
+  async resetTemplate (type, language, name) {
+    const { ManagementService } = this
+    await ManagementService.ResetTemplate({
+      'type': type,
+      'language': language,
+      'name': name
     })
   }
 

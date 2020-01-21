@@ -1132,7 +1132,7 @@ class AuthCoreAuthClient {
 
     if (this.config !== undefined) {
       await new Promise((resolve, reject) => {
-        const swaggerJsonURL = `${this.config.apiBaseURL}/api/authapi/authcore.swagger.json`
+        const swaggerJsonURL = `${this.config.apiBaseURL}/api/authapi/authcore.swagger.json?v=0.2`
         Swagger({
           url: swaggerJsonURL,
           authorizations,

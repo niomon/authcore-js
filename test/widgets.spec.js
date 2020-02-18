@@ -33,6 +33,7 @@ suite('widgets.js', function () {
     test('should be able to mount an iframe with basic attributes', async function () {
       // Preparing
       new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337'
       })
@@ -61,6 +62,7 @@ suite('widgets.js', function () {
     test('should be able to update height when `AuthCore__updateHeight` message is posted', function (done) {
       // Preparing
       const widget = new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337'
       })
@@ -91,6 +93,7 @@ suite('widgets.js', function () {
       let callbackToken
 
       const widget = new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337',
         testCallback: ({ token }) => { callbackToken = token }
@@ -119,6 +122,7 @@ suite('widgets.js', function () {
     test('should not be able to postMessage if the event data is malformed', async function () {
       // Preparing
       new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337'
       })
@@ -142,6 +146,7 @@ suite('widgets.js', function () {
     test('should be able to delete the widget upon calling', async function () {
       // Preparing
       const widget = new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337'
       })
@@ -154,6 +159,7 @@ suite('widgets.js', function () {
     test('should be able to set internal flag for widget', async function () {
       // Preparing
       const widget = new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337',
         internal: true
@@ -170,6 +176,7 @@ suite('widgets.js', function () {
     test('should be able to set language flag for widget', async function () {
       // Preparing
       const widget = new AuthCoreWidgets.Login({
+        clientId: 'example-client',
         container: 'authcore-sign-in-widget',
         root: 'http://0.0.0.0:1337',
         language: 'zh-hk'
@@ -186,6 +193,7 @@ suite('widgets.js', function () {
     test('should be able to post access token to the widget using onLoaded callback', function (done) {
       // Preparing
       const widget = new AuthCoreWidgets.Profile({
+        clientId: 'example-client',
         container: 'authcore-profile-widget',
         root: 'http://0.0.0.0:1337',
         accessToken: 'accessToken'
@@ -222,6 +230,7 @@ suite('widgets.js', function () {
     test('should be able to post new access token to the widget', function (done) {
       // Preparing
       const widget = new AuthCoreWidgets.Profile({
+        clientId: 'example-client',
         container: 'authcore-profile-widget',
         root: 'http://0.0.0.0:1337',
         accessToken: 'oldAccessToken'
@@ -248,6 +257,7 @@ suite('widgets.js', function () {
     suite('ensure \'/\' should still exists for the result', function () {
       test('no pathname no slash at the end', function () {
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -261,6 +271,7 @@ suite('widgets.js', function () {
 
       test('no pathname with slash at the end', function () {
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337/'
         })
@@ -274,6 +285,7 @@ suite('widgets.js', function () {
 
       test('with pathname no slash at the end', function () {
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337/widgets'
         })
@@ -287,6 +299,7 @@ suite('widgets.js', function () {
 
       test('with pathname with slash at the end', function () {
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337/widgets/'
         })
@@ -303,6 +316,7 @@ suite('widgets.js', function () {
       test('should not require username by default', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -317,6 +331,7 @@ suite('widgets.js', function () {
       test('should all to require username', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           root: 'http://0.0.0.0:1337',
           requireUsername: true
@@ -334,6 +349,7 @@ suite('widgets.js', function () {
       test('should be able to set primary colour for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           primaryColour: '#0088ff',
           root: 'http://0.0.0.0:1337'
@@ -348,6 +364,7 @@ suite('widgets.js', function () {
       test('should be able to set success colour for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           successColour: '#0088ff',
           root: 'http://0.0.0.0:1337'
@@ -362,6 +379,7 @@ suite('widgets.js', function () {
       test('should be able to set danger colour for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           dangerColour: '#0088ff',
           root: 'http://0.0.0.0:1337'
@@ -377,6 +395,7 @@ suite('widgets.js', function () {
       test('should be able to set primary colour using colour word for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           primaryColour: 'blue',
           root: 'http://0.0.0.0:1337'
@@ -391,6 +410,7 @@ suite('widgets.js', function () {
       test('should be able to set success colour using colour word for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           successColour: 'blue',
           root: 'http://0.0.0.0:1337'
@@ -405,6 +425,7 @@ suite('widgets.js', function () {
       test('should be able to set danger colour using colour word for widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           dangerColour: 'blue',
           root: 'http://0.0.0.0:1337'
@@ -420,6 +441,7 @@ suite('widgets.js', function () {
       test('should not be able to set primary colour with wrong format', async function () {
         // Testing
         assert.throws(() => {new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           primaryColour: '0088ff',
           root: 'http://0.0.0.0:1337'
@@ -428,6 +450,7 @@ suite('widgets.js', function () {
       test('should not be able to set success colour with wrong format', async function () {
         // Testing
         assert.throws(() => {new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           successColour: '0088ff',
           root: 'http://0.0.0.0:1337'
@@ -437,6 +460,7 @@ suite('widgets.js', function () {
         // Testing
         assert.throws(() => {
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-sign-in-widget',
             dangerColour: '0088ff',
             root: 'http://0.0.0.0:1337'
@@ -449,6 +473,7 @@ suite('widgets.js', function () {
       test('should be able to have register widget with successRegister callback', function (done) {
         // Preparing
         const register = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           initialScreen: 'register',
           root: 'http://0.0.0.0:1337'
@@ -475,6 +500,7 @@ suite('widgets.js', function () {
       test('should be able to mount an iframe with verification attribute', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           initialScreen: 'register',
           root: 'http://0.0.0.0:1337',
@@ -493,6 +519,7 @@ suite('widgets.js', function () {
         // Testing
         assert.throws(() => {
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-register-widget',
             root: 'http://0.0.0.0:1337',
             verification: 'test'
@@ -503,6 +530,7 @@ suite('widgets.js', function () {
       test('should be able to set primary colour for Register widget', async function () {
         // Preparing
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-register-widget',
           initialScreen: 'register',
           primaryColour: '#0088ff',
@@ -519,6 +547,7 @@ suite('widgets.js', function () {
       test('should be able to pre-set contact', async function () {
         // Preparing
         const login = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           contact: 'test@example.com',
           root: 'http://0.0.0.0:1337'
@@ -536,6 +565,7 @@ suite('widgets.js', function () {
         test('should have default bottom socialLoginPaneStyle parameter', async function () {
           // Preparing
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-sign-in-widget',
             root: 'http://0.0.0.0:1337'
           })
@@ -550,6 +580,7 @@ suite('widgets.js', function () {
         test('should be able to set socialLoginPaneStyle parameter to top', async function () {
           // Preparing
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-sign-in-widget',
             root: 'http://0.0.0.0:1337',
             socialLoginPaneStyle: 'top'
@@ -565,6 +596,7 @@ suite('widgets.js', function () {
         test('should be able to set socialLoginPaneStyle parameter to bottom', async function () {
           // Preparing
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-sign-in-widget',
             root: 'http://0.0.0.0:1337',
             socialLoginPaneStyle: 'bottom'
@@ -580,6 +612,7 @@ suite('widgets.js', function () {
         test('should throw error if socialLoginPaneStyle parameter is not top or bottom', async function () {
           assert.throws(() => {
             new AuthCoreWidgets.Login({
+              clientId: 'example-client',
               container: 'authcore-sign-in-widget',
               socialLoginPaneStyle: 'notallow',
               root: 'http://0.0.0.0:1337'
@@ -591,6 +624,7 @@ suite('widgets.js', function () {
       test('default Login widget to have login as initial screen', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -605,6 +639,7 @@ suite('widgets.js', function () {
       test('allow to set signin as initial screen using initialScreen parameter', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           initialScreen: 'signin',
           root: 'http://0.0.0.0:1337'
@@ -620,6 +655,7 @@ suite('widgets.js', function () {
       test('allow to set register as initial screen using initialScreen parameter', async function () {
         // Preparing
         new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           initialScreen: 'register',
           root: 'http://0.0.0.0:1337'
@@ -635,6 +671,7 @@ suite('widgets.js', function () {
       test('not allow to set other parameter as initial screen', async function () {
         assert.throws(() => {
           new AuthCoreWidgets.Login({
+            clientId: 'example-client',
             container: 'authcore-sign-in-widget',
             initialScreen: 'notallow',
             root: 'http://0.0.0.0:1337'
@@ -645,6 +682,7 @@ suite('widgets.js', function () {
       test('should be able to have login widget with successRegister callback', function (done) {
         // Preparing
         const login = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -674,6 +712,7 @@ suite('widgets.js', function () {
 
         const refreshToken = 'VFj09tlhF5PwzqXCqpUsxjW-cyDmSKSZhVtPmG3qQwU'
         const widget = new AuthCoreWidgets.Login({
+          clientId: 'example-client',
           container: 'authcore-sign-in-widget',
           root: 'http://0.0.0.0:1337',
           onSuccess: () => { callbackToken = 42 }
@@ -724,6 +763,7 @@ suite('widgets.js', function () {
       test('default value of showAvatar should be false', async function () {
         // Preparing
         new AuthCoreWidgets.Profile({
+          clientId: 'example-client',
           container: 'authcore-profile-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -739,6 +779,7 @@ suite('widgets.js', function () {
       test('should be able to set showAvatar parameter', async function () {
         // Preparing
         new AuthCoreWidgets.Profile({
+          clientId: 'example-client',
           container: 'authcore-profile-widget',
           showAvatar: true,
           root: 'http://0.0.0.0:1337'
@@ -757,6 +798,7 @@ suite('widgets.js', function () {
       test('should be able to mount an iframe with additional attributes', async function () {
         // Preparing
         new AuthCoreWidgets.Contacts({
+          clientId: 'example-client',
           container: 'authcore-contacts-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -773,6 +815,7 @@ suite('widgets.js', function () {
       test('should be able to monut an iframe', async function () {
         // Preparing
         new AuthCoreWidgets.Settings({
+          clientId: 'example-client',
           container: 'authcore-settings-widget',
           root: 'http://0.0.0.0:1337'
         })
@@ -789,6 +832,7 @@ suite('widgets.js', function () {
       test('should be able to mount an iframe', async function () {
         // Preparing
         new AuthCoreWidgets.RefreshToken({
+          clientId: 'example-client',
           root: 'http://0.0.0.0:1337'
         })
 

@@ -244,6 +244,7 @@ class AuthCoreWidget {
    **/
   buildWidgetSrc (options, name) {
     let {
+      clientId,
       logo,
       company,
       primaryColour = undefined,
@@ -265,6 +266,9 @@ class AuthCoreWidget {
       showAvatar = undefined
     } = options
 
+    if (typeof clientId !== 'string') {
+      throw new Error('clientId must be a string')
+    }
     if (typeof internal !== 'boolean') {
       throw new Error('internal must be boolean')
     }
@@ -314,6 +318,7 @@ class AuthCoreWidget {
     successColour = this.buildColourCode(successColour)
     dangerColour = this.buildColourCode(dangerColour)
     const paramsObj = {
+      clientId: clientId,
       cid: this.containerId,
       logo: logo,
       company: company,

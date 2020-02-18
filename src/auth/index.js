@@ -10,6 +10,7 @@ const formatBuffer = require('../utils/formatBuffer.js')
  *
  * @public
  * @param {object} config
+ * @param {string} config.clientId The client ID for the Authcore instance.
  * @param {string} config.apiBaseURL The base URL for the Authcore instance.
  * @param {object} config.callbacks The set of callback functions to-be called.
  * @param {Function} config.callbacks.unauthenticated The callback function when a user is
@@ -18,6 +19,7 @@ const formatBuffer = require('../utils/formatBuffer.js')
  * @returns {Promise<AuthCoreAuthClient>} The AuthClient.
  * @example
  * const authClient = await new AuthCoreAuthClient({
+ *   clientId: 'example-application',
  *   apiBaseURL: 'https://auth.example.com',
  *   callbacks: {
  *     unauthenticated: function () {
@@ -81,6 +83,7 @@ class AuthCoreAuthClient {
 
     const startPasswordAuthnResponse = await AuthService.StartPasswordAuthn({
       'body': {
+        'client_id': this.config.clientId,
         'user_handle': handle,
         'code_challenge': codeChallenge,
         'code_challenge_method': codeChallengeMethod,
@@ -234,6 +237,7 @@ class AuthCoreAuthClient {
 
     const createAuthorizationTokenResponse = await AuthService.CreateAuthorizationToken({
       'body': {
+        'client_id': this.config.clientId,
         'code_challenge': codeChallenge,
         'code_challenge_method': codeChallengeMethod
       }
@@ -356,6 +360,7 @@ class AuthCoreAuthClient {
     // Step 1: Create a user
     const createUserResponse = await AuthService.CreateUser({
       'body': {
+        'client_id': this.config.clientId,
         'username': username,
         'email': email,
         'phone': phone,
@@ -899,6 +904,7 @@ class AuthCoreAuthClient {
 
     const startResetPasswordAuthenticationResponse = await AuthService.StartResetPasswordAuthentication({
       'body': {
+        'client_id': this.config.clientId,
         'user_handle': handle
       }
     })
@@ -971,6 +977,7 @@ class AuthCoreAuthClient {
     const { AuthService } = this
 
     const startAuthenticateOAuthResponse = await AuthService.StartAuthenticateOAuth({
+      'client_id': this.config.clientId,
       'service': service.toUpperCase(),
       'success_redirect_url': successRedirectURL
     })
@@ -1095,7 +1102,9 @@ class AuthCoreAuthClient {
   async getWidgetsSettings () {
     const { AuthService } = this
 
-    const getWidgetsSettingsResponse = await AuthService.GetWidgetsSettings()
+    const getWidgetsSettingsResponse = await AuthService.GetWidgetsSettings({
+      'client_id': this.config.clientId
+    })
     const getWidgetsSettingsResBody = getWidgetsSettingsResponse.body
     return {
       widgetsSettings: getWidgetsSettingsResBody['widgets_settings']

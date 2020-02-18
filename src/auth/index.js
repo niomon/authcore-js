@@ -323,6 +323,40 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * Starts to verify an owned contact by requesting a verification email / SMS.
+   *
+   * @public
+   * @param {string} type The type of the primary contact to-be verified.
+   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
+   */
+  async startVerifyPrimaryContact (type) {
+    const { AuthService } = this
+    await AuthService.StartVerifyPrimaryContact({
+      'body': {
+        'type': type.toUpperCase()
+      }
+    })
+  }
+
+  /**
+   * Verifies a contact by verification code.
+   *
+   * @public
+   * @param {number} type The type of the primary contact to-be verified.
+   * @param {string} code The verification code.
+   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
+   */
+  async verifyPrimaryContact (type, code) {
+    const { AuthService } = this
+    await AuthService.CompleteVerifyPrimaryContact({
+      'body': {
+        'type': type.toUpperCase(),
+        'code': code
+      }
+    })
+  }
+
+  /**
    * Creates an user.
    *
    * @public

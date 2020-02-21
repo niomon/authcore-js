@@ -86,7 +86,7 @@ class AuthCoreWidget {
     this.accessToken = options.accessToken
 
     // Set transition time in milliseconds
-    const transitionTime = 400
+    const transitionTime = 100
 
     const widget = document.createElement('iframe')
     widget.style.height = '0px'

@@ -376,7 +376,15 @@ class AuthCoreAuthClient {
     const { username = '', phone = '', email = '', password } = user
     let { displayName } = user
     if (displayName === undefined) {
-      displayName = ''
+      if (username !== '') {
+        displayName = username
+      } else if (email !== '') {
+        displayName = email
+      } else if (phone !== '') {
+        displayName = phone
+      } else {
+        throw new Error('displayName cannot be undefined')
+      }
     }
     if (password === undefined) {
       throw new Error('no password')

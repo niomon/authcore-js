@@ -266,7 +266,7 @@ class AuthCoreWidget {
       showAvatar = undefined
     } = options
 
-    if (typeof clientId !== 'string') {
+    if (typeof clientId !== 'string' && clientId !== undefined) {
       throw new Error('clientId must be a string')
     }
     if (typeof internal !== 'boolean') {

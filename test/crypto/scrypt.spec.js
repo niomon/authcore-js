@@ -2,7 +2,7 @@
 const { assert } = require('chai')
 
 const formatBuffer = require('../../src/utils/formatBuffer.js')
-const scrypt = require('../../src/crypto/scrypt.js')
+const { scrypt } = require('../../src/crypto/scrypt.js')
 
 const testCases = [{
   password: Buffer.from(''),
@@ -29,7 +29,7 @@ const testCases = [{
 
 suite('crypto/scrypt.js', function () {
   suite('scrypt', function () {
-    const fn = scrypt.scrypt
+    const fn = scrypt
     test('should hash inputs correctly', async function () {
       for (let index = 0; index < testCases.length; index++) {
         const testCase = testCases[index]

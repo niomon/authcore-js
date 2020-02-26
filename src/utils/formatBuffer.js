@@ -1,4 +1,4 @@
-const BigNumber = require('bignumber.js')
+import BigNumber from 'bignumber.js'
 
 /**
  * Converts a string to buffer.
@@ -172,15 +172,17 @@ function toUint8Array (buf) {
   return buf.toJSON().data
 }
 
-exports.fromString = fromString
-exports.fromBigNumber = fromBigNumber
-exports.fromHex = fromHex
-exports.fromBase64 = fromBase64
-exports.fromBase64URLSafe = fromBase64URLSafe
-exports.fromUint8Array = fromUint8Array
-exports.toString = toString
-exports.toBigNumber = toBigNumber
-exports.toHex = toHex
-exports.toBase64 = toBase64
-exports.toBase64URLSafe = toBase64URLSafe
-exports.toUint8Array = toUint8Array
+export {
+  fromString,
+  fromBigNumber,
+  fromHex,
+  fromBase64,
+  fromBase64URLSafe,
+  fromUint8Array,
+  toString,
+  toBigNumber,
+  toHex,
+  toBase64,
+  toBase64URLSafe,
+  toUint8Array
+}

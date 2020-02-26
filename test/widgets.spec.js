@@ -1,4 +1,4 @@
-/* global suite, test, localStorage, beforeEach, teardown */
+/* global suite, test, localStorage, setup, teardown */
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
@@ -10,7 +10,7 @@ const REFRESH_TOKEN_KEY = 'io.authcore.refreshToken'
 
 suite('widgets.js', function () {
   suite('AuthCoreWidget', function () {
-    beforeEach(function () {
+    setup(function () {
       const { window } = new JSDOM(`
         <html>
           <body>

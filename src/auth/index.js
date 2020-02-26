@@ -1,9 +1,9 @@
 // swagger wrapper
-const Swagger = require('swagger-client')
+import Swagger from 'swagger-client'
 
-const spake2 = require('../crypto/spake2.js')
-const { randomTOTPSecret } = require('../crypto/random.js')
-const formatBuffer = require('../utils/formatBuffer.js')
+import spake2, { createVerifier } from '../crypto/spake2.js'
+import { randomTOTPSecret } from '../crypto/random.js'
+import { fromBase64, toBase64, toString } from '../utils/formatBuffer.js'
 
 /**
  * The class interacting between web client and AuthCore AuthAPI server.
@@ -109,16 +109,16 @@ class AuthCoreAuthClient {
   async authenticateWithPassword (password) {
     const { AuthService, salt, temporaryToken } = this
 
-    const state = await spake2.spake2.startClient('authcoreuser', 'authcore', password, salt)
+    const state = await spake2.startClient('authcoreuser', 'authcore', password, salt)
     const message = state.getMessage()
     const startAuthenticatePasswordResponse = await AuthService.PasswordAuthnKeyExchange({
       'body': {
         'temporary_token': temporaryToken,
-        'message': formatBuffer.toBase64(message)
+        'message': toBase64(message)
       }
     })
     const startAuthenticatePasswordResBody = startAuthenticatePasswordResponse.body
-    const incomingMessage = formatBuffer.fromBase64(startAuthenticatePasswordResBody['password_challenge']['message'])
+    const incomingMessage = fromBase64(startAuthenticatePasswordResBody['password_challenge']['message'])
     const challengeToken = startAuthenticatePasswordResBody['password_challenge']['token']
 
     const sharedSecret = state.finish(incomingMessage)
@@ -129,7 +129,7 @@ class AuthCoreAuthClient {
         'temporary_token': temporaryToken,
         'password_response': {
           'token': challengeToken,
-          'confirmation': formatBuffer.toBase64(confirmation)
+          'confirmation': toBase64(confirmation)
         }
       }
     })
@@ -408,7 +408,7 @@ class AuthCoreAuthClient {
     AuthService = this.AuthService
 
     // Step 2: Change the password of the created user
-    const { salt, verifier } = await spake2.createVerifier(password)
+    const { salt, verifier } = await createVerifier(password)
     await AuthService.FinishChangePassword({
       'body': {
         'password_verifier': {
@@ -506,27 +506,27 @@ class AuthCoreAuthClient {
     if (oldPassword !== '') {
       const startChangePasswordResponse = await AuthService.StartChangePassword()
       const startChangePasswordResBody = startChangePasswordResponse.body
-      const oldSalt = formatBuffer.fromBase64(startChangePasswordResBody['salt'])
+      const oldSalt = fromBase64(startChangePasswordResBody['salt'])
 
-      const oldState = await spake2.spake2.startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
+      const oldState = await spake2.startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
       const oldMessage = oldState.getMessage()
       const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
         'body': {
-          'message': formatBuffer.toBase64(oldMessage)
+          'message': toBase64(oldMessage)
         }
       })
       const changePasswordKeyExchangeResBody = changePasswordKeyExchangeResponse.body
-      const incomingMessage = formatBuffer.fromBase64(changePasswordKeyExchangeResBody['message'])
+      const incomingMessage = fromBase64(changePasswordKeyExchangeResBody['message'])
       const oldChallengeToken = changePasswordKeyExchangeResBody['token']
 
       const sharedSecret = oldState.finish(incomingMessage)
       const confirmation = sharedSecret.getConfirmation()
-      const { salt, verifier } = await spake2.createVerifier(newPassword)
+      const { salt, verifier } = await createVerifier(newPassword)
       await AuthService.FinishChangePassword({
         'body': {
           'old_password_response': {
             'token': oldChallengeToken,
-            'confirmation': formatBuffer.toBase64(confirmation)
+            'confirmation': toBase64(confirmation)
           },
           'password_verifier': {
             'salt': salt,
@@ -536,7 +536,7 @@ class AuthCoreAuthClient {
         }
       })
     } else {
-      const { salt, verifier } = await spake2.createVerifier(newPassword)
+      const { salt, verifier } = await createVerifier(newPassword)
       await AuthService.FinishChangePassword({
         'body': {
           'password_verifier': {
@@ -569,7 +569,7 @@ class AuthCoreAuthClient {
    * @returns {string} A secret for time-based one-time password.
    */
   generateTOTPSecret () {
-    return formatBuffer.toString(randomTOTPSecret())
+    return toString(randomTOTPSecret())
   }
 
   /**
@@ -986,7 +986,7 @@ class AuthCoreAuthClient {
   async resetPassword (resetPasswordToken, newPassword) {
     const { AuthService } = this
 
-    const { salt, verifier } = await spake2.createVerifier(newPassword)
+    const { salt, verifier } = await createVerifier(newPassword)
     await AuthService.ResetPassword({
       'body': {
         'token': resetPasswordToken,
@@ -1230,7 +1230,7 @@ class AuthCoreAuthClient {
     res['challenges'].forEach(challenge => {
       switch (challenge) {
         case 'PASSWORD':
-          this.salt = formatBuffer.fromBase64(res['password_salt'])
+          this.salt = fromBase64(res['password_salt'])
           break
         case 'TIME_BASED_ONE_TIME_PASSWORD': break
         case 'SMS_CODE': break
@@ -1281,4 +1281,4 @@ class AuthCoreAuthClient {
  * @property {string} widgets_settings The widgets settings.
  */
 
-exports.AuthCoreAuthClient = AuthCoreAuthClient
+export { AuthCoreAuthClient }

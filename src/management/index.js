@@ -1,7 +1,7 @@
 // swagger wrapper
-const Swagger = require('swagger-client')
+import Swagger from 'swagger-client'
 
-const spake2 = require('../crypto/spake2.js')
+import { createVerifier } from '../crypto/spake2.js'
 
 /**
  * The class interacting between web client and AuthCore ManagementAPI server.
@@ -498,7 +498,7 @@ class AuthCoreManagementClient {
     const userId = createUserResBody['user']['id']
 
     // Step 2: Change the password of the created user
-    const { salt, verifier } = await spake2.createVerifier(password)
+    const { salt, verifier } = await createVerifier(password)
     await ManagementService.ChangePassword({
       'body': {
         'user_id': userId.toString(),
@@ -521,7 +521,7 @@ class AuthCoreManagementClient {
   async changePassword (userId, newPassword) {
     const { ManagementService } = this
 
-    const { salt, verifier } = await spake2.createVerifier(newPassword)
+    const { salt, verifier } = await createVerifier(newPassword)
     await ManagementService.ChangePassword({
       'body': {
         'user_id': userId.toString(),
@@ -796,4 +796,4 @@ class AuthCoreManagementClient {
   }
 }
 
-exports.AuthCoreManagementClient = AuthCoreManagementClient
+export { AuthCoreManagementClient }

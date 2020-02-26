@@ -1,7 +1,6 @@
-const crypto = require('crypto')
-const base32Encode = require('base32-encode')
-
-const formatBuffer = require('../utils/formatBuffer.js')
+import crypto from 'crypto'
+import base32Encode from 'base32-encode'
+import { fromString } from '../utils/formatBuffer'
 
 /**
  * Generate a random secret for time-based one-time password (TOTP).
@@ -16,7 +15,7 @@ const formatBuffer = require('../utils/formatBuffer.js')
 function randomTOTPSecret () {
   const randomBuffer = crypto.randomBytes(32)
   const hash = crypto.createHash('sha1').update(randomBuffer).digest()
-  return formatBuffer.fromString(base32Encode(hash, 'RFC4648'))
+  return fromString(base32Encode(hash, 'RFC4648'))
 }
 
-exports.randomTOTPSecret = randomTOTPSecret
+export { randomTOTPSecret }

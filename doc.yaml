@@ -4,7 +4,6 @@ toc:
   - AuthCoreManagementClient
   - AuthCoreKeyVaultClient
   - AuthCoreCosmosProvider
-  - AuthCoreWalletSubprovider
   - name: Objects
     children:
     - AuthenticationState

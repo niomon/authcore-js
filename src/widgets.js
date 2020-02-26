@@ -1,8 +1,7 @@
-const pick = require('lodash/pick')
-
-const crypto = require('crypto')
-const color = require('color')
-const formatBuffer = require('./utils/formatBuffer')
+import pick from 'lodash/pick'
+import crypto from 'crypto'
+import color from 'color'
+import { toHex } from './utils/formatBuffer'
 
 /**
  * Clears the children of a DOM element.
@@ -82,7 +81,7 @@ class AuthCoreWidget {
     this.analyticsHook = options.analyticsHook
 
     this.origin = options.root.origin.toString()
-    this.containerId = formatBuffer.toHex(crypto.randomBytes(8))
+    this.containerId = toHex(crypto.randomBytes(8))
     this.accessToken = options.accessToken
 
     // Set transition time in milliseconds
@@ -536,4 +535,4 @@ const AuthCoreWidgets = {
   RefreshToken
 }
 
-exports.AuthCoreWidgets = AuthCoreWidgets
+export { AuthCoreWidgets }

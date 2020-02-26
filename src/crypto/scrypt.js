@@ -1,6 +1,5 @@
-const scryptLib = require('scrypt-js')
-
-const formatBuffer = require('../utils/formatBuffer.js')
+import scryptLib from 'scrypt-js'
+import { fromUint8Array } from '../utils/formatBuffer'
 
 /**
  * Use [scrypt](https://en.wikipedia.org/wiki/Scrypt) to hash the passphrase along with a given
@@ -22,9 +21,9 @@ function scrypt (passphrase, salt, n, r, p) {
     scryptLib(passphrase, salt, n, r, p, 64, function (error, _, key) {
       /* istanbul ignore next */
       if (error) return reject(error)
-      else if (key) resolve(formatBuffer.fromUint8Array(key))
+      else if (key) resolve(fromUint8Array(key))
     })
   })
 }
 
-exports.scrypt = scrypt
+export { scrypt }

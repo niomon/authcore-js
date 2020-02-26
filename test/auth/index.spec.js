@@ -2,6 +2,7 @@
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 const nock = require('nock')
+const { JSDOM } = require('jsdom')
 
 const { mockAPI } = require('./api_helpers/mock.js')
 const { AuthCoreAuthClient } = require('../../src/auth/index.js')
@@ -445,6 +446,12 @@ suite('auth/index.js', function () {
         }
       })
       await assert.isRejected(authClient.getCurrentUser())
+      const { window } = new JSDOM(`
+        <html>
+          <body>
+          </body>
+        </html>
+      `)
       window.postMessage({
         type: 'AuthCore_unauthenticated_tokenUpdated',
         data: {

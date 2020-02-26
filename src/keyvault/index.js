@@ -1,7 +1,6 @@
 // swagger wrapper
-const Swagger = require('swagger-client')
-
-const formatBuffer = require('../utils/formatBuffer.js')
+import Swagger from 'swagger-client'
+import { fromString, toHex } from '../utils/formatBuffer'
 
 /**
  * The class interacting between web client and AuthCore KeyVaultAPI server.
@@ -120,7 +119,7 @@ class AuthCoreKeyVaultClient {
           'type': type,
           'object_id': objectId,
           'wallet_path': walletPath,
-          'data': formatBuffer.toHex(data)
+          'data': toHex(data)
         }
       }
     })
@@ -143,7 +142,7 @@ class AuthCoreKeyVaultClient {
         'cosmos_sign': {
           'object_id': objectId,
           'wallet_path': walletPath,
-          'data': formatBuffer.toHex(formatBuffer.fromString(data))
+          'data': toHex(fromString(data))
         }
       }
     })
@@ -209,4 +208,4 @@ class AuthCoreKeyVaultClient {
   }
 }
 
-exports.AuthCoreKeyVaultClient = AuthCoreKeyVaultClient
+export { AuthCoreKeyVaultClient }

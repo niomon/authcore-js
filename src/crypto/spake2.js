@@ -1,8 +1,8 @@
-const crypto = require('crypto')
-const spake2js = require('spake2')
+import crypto from 'crypto'
+import spake2js from 'spake2'
 
-const formatBuffer = require('../utils/formatBuffer.js')
-const unicodeNorm = require('../utils/unicodeNorm.js')
+import { toBase64 } from '../utils/formatBuffer'
+import { normalize } from '../utils/unicodeNorm'
 
 const spake2 = spake2js.spake2Plus({
   suite: 'ED25519-SHA256-HKDF-HMAC-SCRYPT',
@@ -21,17 +21,17 @@ const spake2 = spake2js.spake2Plus({
  * @property {string} L Part of the verifier, encoded in base64.
  */
 async function createVerifier (password) {
-  const normalizedPassword = unicodeNorm.normalize(password)
+  const normalizedPassword = normalize(password)
   const salt = crypto.randomBytes(32)
   const verifier = await spake2.computeVerifier(normalizedPassword, salt, 'authcoreuser', 'authcore')
   return {
-    salt: formatBuffer.toBase64(salt),
+    salt: toBase64(salt),
     verifier: {
-      w0: formatBuffer.toBase64(verifier.w0),
-      L: formatBuffer.toBase64(verifier.L)
+      w0: toBase64(verifier.w0),
+      L: toBase64(verifier.L)
     }
   }
 }
 
-exports.spake2 = spake2
-exports.createVerifier = createVerifier
+export { createVerifier }
+export default spake2

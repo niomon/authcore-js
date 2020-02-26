@@ -1,4 +1,4 @@
-const formatBuffer = require('./formatBuffer.js')
+import { fromString, toString } from './formatBuffer'
 
 /**
  * Normalize a buffer with the Normalization Form Compatibility Decomposition (NFKD) algorithm.
@@ -14,7 +14,7 @@ const formatBuffer = require('./formatBuffer.js')
  * @returns {Buffer} The normalized buffer by the NFKD algorithm.
  */
 function normalize (buf) {
-  return formatBuffer.fromString(formatBuffer.toString(buf).normalize('NFKD'))
+  return fromString(toString(buf).normalize('NFKD'))
 }
 
-exports.normalize = normalize
+export { normalize }

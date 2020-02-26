@@ -1,12 +1,12 @@
-const hdKey = require('hdkey')
-const bech32 = require('bech32')
-const stringify = require('fast-json-stable-stringify')
-const pick = require('lodash/pick')
-const cloneDeep = require('lodash/cloneDeep')
+import hdKey from 'hdkey'
+import bech32 from 'bech32'
+import stringify from 'fast-json-stable-stringify'
+import pick from 'lodash/pick'
+import cloneDeep from 'lodash/cloneDeep'
 
-const { AuthCoreKeyVaultClient } = require('./keyvault/index.js')
-const formatBuffer = require('./utils/formatBuffer')
-const { AuthCoreWidgets } = require('./widgets')
+import { AuthCoreKeyVaultClient } from './keyvault/index'
+import { AuthCoreWidgets } from './widgets'
+import { fromHex, toHex, toBase64 } from './utils/formatBuffer'
 
 /**
  * The Cosmos wallet provider.
@@ -55,7 +55,7 @@ class AuthCoreCosmosProvider {
         wallets.push({
           objectId: publicKey['id'],
           childId,
-          publicKey: formatBuffer.toHex(childKey.publicKey),
+          publicKey: toHex(childKey.publicKey),
           address: bech32.encode('cosmos', bech32.toWords(childKey.identifier))
         })
       }
@@ -150,13 +150,13 @@ class AuthCoreCosmosProvider {
     const signature = {
       'pub_key': {
         'type': 'tendermint/PubKeySecp256k1',
-        'value': formatBuffer.toBase64(formatBuffer.fromHex(wallet.publicKey))
+        'value': toBase64(fromHex(wallet.publicKey))
       },
-      'signature': formatBuffer.toBase64(formatBuffer.fromHex(sign))
+      'signature': toBase64(fromHex(sign))
     }
     dataWithSign['signatures'].push(signature)
     return dataWithSign
   }
 }
 
-exports.AuthCoreCosmosProvider = AuthCoreCosmosProvider
+export { AuthCoreCosmosProvider }

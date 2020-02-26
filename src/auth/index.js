@@ -31,31 +31,25 @@ import { fromBase64, toBase64, toString } from '../utils/formatBuffer.js'
  */
 class AuthCoreAuthClient {
   constructor (config) {
-    return new Promise(async (resolve, reject) => { // eslint-disable-line no-async-promise-executor
-      this.config = config
+    this.config = config
 
-      this.temporaryToken = undefined
-      this.deviceToken = undefined
-      this.handle = undefined
-      this.passwordChallenge = undefined
+    this.temporaryToken = undefined
+    this.deviceToken = undefined
+    this.handle = undefined
+    this.passwordChallenge = undefined
 
-      // Set accessToken into API
-      await this.setAccessToken(config.accessToken)
-
-      return resolve(this)
-    })
+    // Set accessToken into API
+    this.setAccessToken(config.accessToken)
   }
 
   /**
-   * Sets the access token and refreshes the Swagger client.
+   * Sets the access token.
    *
    * @public
    * @param {string} accessToken The access token of the user.
-   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
-  async setAccessToken (accessToken) {
+  setAccessToken (accessToken) {
     this.config.accessToken = accessToken
-    await this._getSwaggerClient()
   }
 
   /**
@@ -79,7 +73,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async startAuthentication (handle, codeChallenge, codeChallengeMethod, successRedirectURL) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const startPasswordAuthnResponse = await AuthService.StartPasswordAuthn({
       'body': {
@@ -107,7 +101,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async authenticateWithPassword (password) {
-    const { AuthService, salt, temporaryToken } = this
+    const { salt, temporaryToken } = this
+    const AuthService = await this._getAuthService()
 
     const state = await spake2.startClient('authcoreuser', 'authcore', password, salt)
     const message = state.getMessage()
@@ -147,7 +142,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async authenticateWithTOTP (pin) {
-    const { AuthService, temporaryToken } = this
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
 
     const authenticateSecondFactorResponse = await AuthService.AuthenticateSecondFactor({
       'body': {
@@ -169,7 +165,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async startAuthenticateSMS () {
-    const { AuthService, temporaryToken } = this
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
     await AuthService.StartAuthenticateSecondFactor({
       'body': {
         'temporary_token': temporaryToken,
@@ -186,7 +183,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async authenticateWithSMS (code) {
-    const { AuthService, temporaryToken } = this
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
 
     const authenticateSecondFactorResponse = await AuthService.AuthenticateSecondFactor({
       'body': {
@@ -209,7 +207,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async authenticateWithBackupCode (code) {
-    const { AuthService, temporaryToken } = this
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
 
     const authenticateSecondFactorResponse = await AuthService.AuthenticateSecondFactor({
       'body': {
@@ -233,7 +232,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthorizationToken>} The authorization token.
    */
   async createAuthorizationToken (codeChallenge, codeChallengeMethod) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createAuthorizationTokenResponse = await AuthService.CreateAuthorizationToken({
       'body': {
@@ -255,7 +254,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<AccessToken>} The access token.
    */
   async createAccessToken (authorizationToken) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createAccessTokenResponse = await AuthService.CreateAccessToken({
       'body': {
@@ -265,7 +264,8 @@ class AuthCoreAuthClient {
     })
     const createAccessTokenResBody = createAccessTokenResponse.body
 
-    await this.setAccessToken(createAccessTokenResBody['access_token'])
+    this.setAccessToken(createAccessTokenResBody['access_token'])
+    await this._getSwaggerClient()
     return createAccessTokenResBody
   }
 
@@ -277,7 +277,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<AccessToken>} The access token.
    */
   async createAccessTokenByRefreshToken (refreshToken) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createAccessTokenResponse = await AuthService.CreateAccessToken({
       'body': {
@@ -287,7 +287,8 @@ class AuthCoreAuthClient {
     })
     const createAccessTokenResBody = createAccessTokenResponse.body
 
-    await this.setAccessToken(createAccessTokenResBody['access_token'])
+    this.setAccessToken(createAccessTokenResBody['access_token'])
+    await this._getSwaggerClient()
     return createAccessTokenResBody
   }
 
@@ -298,7 +299,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The current user.
    */
   async getCurrentUser () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const getCurrentUserResponse = await AuthService.GetCurrentUser()
     const getCurrentUserResBody = getCurrentUserResponse.body
@@ -314,7 +315,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The updated current user.
    */
   async updateCurrentUser (user) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const updateCurrentUserResponse = await AuthService.UpdateCurrentUser({
       'body': {
@@ -334,7 +335,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async startVerifyPrimaryContact (type) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.StartVerifyPrimaryContact({
       'body': {
         'type': type.toUpperCase()
@@ -351,7 +352,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async verifyPrimaryContact (type, code) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.CompleteVerifyPrimaryContact({
       'body': {
         'type': type.toUpperCase(),
@@ -389,7 +390,7 @@ class AuthCoreAuthClient {
     if (password === undefined) {
       throw new Error('no password')
     }
-    let { AuthService } = this
+    let AuthService = await this._getAuthService()
 
     // Step 1: Create a user
     const createUserResponse = await AuthService.CreateUser({
@@ -405,7 +406,7 @@ class AuthCoreAuthClient {
     const createUserResBody = createUserResponse.body
     const accessToken = await this.createAccessTokenByRefreshToken(createUserResBody['refresh_token'])
     // We need to replace the old AuthService to use the new instance with access token.
-    AuthService = this.AuthService
+    AuthService = await this._getAuthService()
 
     // Step 2: Change the password of the created user
     const { salt, verifier } = await createVerifier(password)
@@ -450,7 +451,7 @@ class AuthCoreAuthClient {
         throw new Error('displayName cannot be undefined')
       }
     }
-    let { AuthService } = this
+    let AuthService = await this._getAuthService()
 
     // Step 1: Create a user
     const createUserResponse = await AuthService.CreateUser({
@@ -465,7 +466,7 @@ class AuthCoreAuthClient {
     const createUserResBody = createUserResponse.body
     const accessToken = await this.createAccessTokenByRefreshToken(createUserResBody['refresh_token'])
     // We need to replace the old AuthService to use the new instance with access token.
-    AuthService = this.AuthService
+    AuthService = await this._getAuthService()
 
     // Step 2: Verify the contact by OAuth access token. Omits when the contact is not verified by
     // the OAuth provider.
@@ -501,7 +502,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async changePassword (oldPassword, newPassword) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     if (oldPassword !== '') {
       const startChangePasswordResponse = await AuthService.StartChangePassword()
@@ -556,7 +557,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object[]>} The list of second factors.
    */
   async listSecondFactors () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const listSecondFactorsResponse = await AuthService.ListSecondFactors()
     const listSecondFactorsResBody = listSecondFactorsResponse.body
@@ -582,7 +583,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The second factor object.
    */
   async createTOTPAuthenticator (identifier, totpSecret, totpPin) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createSecondFactorResponse = await AuthService.CreateSecondFactor({
       'body': {
@@ -605,7 +606,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async startCreateSMSSecondFactor (phoneNumber) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     await AuthService.StartCreateSecondFactor({
       'body': {
@@ -625,7 +626,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The second factor object.
    */
   async createSMSSecondFactor (phoneNumber, smsCode) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createSecondFactorResponse = await AuthService.CreateSecondFactor({
       'body': {
@@ -646,7 +647,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The second factor object.
    */
   async createBackupCode () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createSecondFactorResponse = await AuthService.CreateSecondFactor({
       'body': {
@@ -666,7 +667,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async deleteSecondFactor (id) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.DeleteSecondFactor({
       'id': id
     })
@@ -680,7 +681,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The newly created email id and value.
    */
   async createEmailContact (email) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     const createContactResponse = await AuthService.CreateContact({
       'body': {
         'contact': {
@@ -706,7 +707,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The newly created phone id and value.
    */
   async createPhoneContact (phone) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     const createContactResponse = await AuthService.CreateContact({
       'body': {
         'contact': {
@@ -732,7 +733,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object[]>} The list of contacts.
    */
   async listContacts (type) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     const listContactsResponse = await AuthService.ListContacts({
       type: type
     })
@@ -748,7 +749,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async deleteContact (contactId) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.DeleteContact({
       'contact_id': contactId
     })
@@ -762,7 +763,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async startVerifyContact (contactId) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.StartVerifyContact({
       'body': {
         'contact_id': contactId.toString()
@@ -778,7 +779,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The primary contact object.
    */
   async updatePrimaryContact (contactId) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const updatePrimaryContactResponse = await AuthService.UpdatePrimaryContact({
       'contact_id': (contactId).toString()
@@ -795,7 +796,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async verifyContactByToken (token) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.CompleteVerifyContact({
       'body': {
         'token': token
@@ -812,7 +813,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async verifyContactByCode (contactId, code) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.CompleteVerifyContact({
       'body': {
         'code': {
@@ -833,7 +834,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The list of sessions.
    */
   async listSessions (pageSize, pageToken, ascending) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     const listSessionsResponse = await AuthService.ListSessions({
       'page_size': pageSize,
       'page_token': pageToken,
@@ -851,7 +852,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async deleteSession (sessionId) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.DeleteSession({
       'session_id': sessionId
     })
@@ -864,7 +865,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<Metadata>} The metadata object.
    */
   async getMetadata () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const getMetadataResponse = await AuthService.GetMetadata()
     const getMetadataResBody = getMetadataResponse.body
@@ -881,7 +882,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<Metadata>} The metadata object.
    */
   async updateMetadata (userMetadata) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     const updateMetadataResponse = await AuthService.UpdateMetadata({
       'body': {
         'user_metadata': userMetadata
@@ -912,7 +913,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async validateOAuthParameters (responseType, clientId, redirectUri, scope, state, codeChallenge, codeChallengeMethod) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.ValidateOAuthParameters({
       'response_type': responseType,
       'client_id': clientId,
@@ -934,7 +935,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The authentication state for reset password.
    */
   async startResetPasswordAuthentication (handle) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const startResetPasswordAuthenticationResponse = await AuthService.StartResetPasswordAuthentication({
       'body': {
@@ -959,7 +960,8 @@ class AuthCoreAuthClient {
    * @returns {Promise<object>} The authentication state for reset password.
    */
   async authenticateResetPasswordWithContact (token) {
-    const { AuthService, temporaryToken } = this
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
 
     const authenticateResetPasswordResponse = await AuthService.AuthenticateResetPassword({
       'body': {
@@ -984,7 +986,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async resetPassword (resetPasswordToken, newPassword) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const { salt, verifier } = await createVerifier(newPassword)
     await AuthService.ResetPassword({
@@ -1008,7 +1010,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<string>} The URI of the OAuth endpoint.
    */
   async startAuthenticateOAuth (service, successRedirectURL) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const startAuthenticateOAuthResponse = await AuthService.StartAuthenticateOAuth({
       'client_id': this.config.clientId,
@@ -1036,7 +1038,7 @@ class AuthCoreAuthClient {
    *          `preferred_email`.
    */
   async authenticateOAuth (service, state, code) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const authenticateOAuthResponse = await AuthService.AuthenticateOAuth({
       'body': {
@@ -1061,7 +1063,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<object[]>} The list of OAuth factors.
    */
   async listOAuthFactors () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const listOAuthFactorsResponse = await AuthService.ListOAuthFactors()
     const listOAuthFactorsResBody = listOAuthFactorsResponse.body
@@ -1076,7 +1078,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<string>} The URI of the OAuth endpoint.
    */
   async startCreateOAuthFactor (service) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const startCreateOAuthFactorResponse = await AuthService.StartCreateOAuthFactor({
       'service': service.toUpperCase()
@@ -1100,7 +1102,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async createOAuthFactor (service, state, code) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const createOAuthFactorResponse = await AuthService.CreateOAuthFactor({
       'body': {
@@ -1121,7 +1123,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async deleteOAuthFactor (id) {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.DeleteOAuthFactor({
       'id': id
     })
@@ -1134,7 +1136,7 @@ class AuthCoreAuthClient {
    * @returns {Promise<WidgetsSettings>} The widgets settings object.
    */
   async getWidgetsSettings () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
 
     const getWidgetsSettingsResponse = await AuthService.GetWidgetsSettings({
       'client_id': this.config.clientId
@@ -1152,8 +1154,22 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async signOut () {
-    const { AuthService } = this
+    const AuthService = await this._getAuthService()
     await AuthService.DeleteCurrentSession()
+  }
+
+  /**
+   * Getter of Swagger API AuthService. Get inner AuthService Object or retrieve it from swagger
+   * by calling getSwaggerClient.
+   *
+   * @private
+   * @returns {Promise<object>} The inner AuthService object for API call if succeed, throws an error when failed.
+   */
+  async _getAuthService () {
+    if (!this.AuthService) {
+      await this._getSwaggerClient()
+    }
+    return this.AuthService
   }
 
   /**

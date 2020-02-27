@@ -4,11 +4,19 @@ import spake2js from 'spake2'
 import { toBase64 } from '../utils/formatBuffer'
 import { normalize } from '../utils/unicodeNorm'
 
-const spake2 = spake2js.spake2Plus({
-  suite: 'ED25519-SHA256-HKDF-HMAC-SCRYPT',
-  mhf: { n: 16384, r: 8, p: 1 },
-  kdf: { AAD: '' }
-})
+/**
+ * Create a spake2 instance for function call.
+ *
+ * @private
+ * @returns {object} A SPAKE2 instance with preset parameter.
+ */
+function spake2 () {
+  return spake2js.spake2Plus({
+    suite: 'ED25519-SHA256-HKDF-HMAC-SCRYPT',
+    mhf: { n: 16384, r: 8, p: 1 },
+    kdf: { AAD: '' }
+  })
+}
 
 /**
  * Creates a password verifier of a given password-salt pair for the server to authenticate
@@ -23,7 +31,7 @@ const spake2 = spake2js.spake2Plus({
 async function createVerifier (password) {
   const normalizedPassword = normalize(password)
   const salt = crypto.randomBytes(32)
-  const verifier = await spake2.computeVerifier(normalizedPassword, salt, 'authcoreuser', 'authcore')
+  const verifier = await spake2().computeVerifier(normalizedPassword, salt, 'authcoreuser', 'authcore')
   return {
     salt: toBase64(salt),
     verifier: {

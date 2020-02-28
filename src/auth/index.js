@@ -1,6 +1,5 @@
 // swagger wrapper
 import Swagger from 'swagger-client'
-
 import spake2, { createVerifier } from '../crypto/spake2.js'
 import { randomTOTPSecret } from '../crypto/random.js'
 import { fromBase64, toBase64, toString } from '../utils/formatBuffer.js'
@@ -103,8 +102,7 @@ class AuthCoreAuthClient {
   async authenticateWithPassword (password) {
     const { salt, temporaryToken } = this
     const AuthService = await this._getAuthService()
-
-    const state = await spake2.startClient('authcoreuser', 'authcore', password, salt)
+    const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
     const message = state.getMessage()
     const startAuthenticatePasswordResponse = await AuthService.PasswordAuthnKeyExchange({
       'body': {
@@ -508,8 +506,7 @@ class AuthCoreAuthClient {
       const startChangePasswordResponse = await AuthService.StartChangePassword()
       const startChangePasswordResBody = startChangePasswordResponse.body
       const oldSalt = fromBase64(startChangePasswordResBody['salt'])
-
-      const oldState = await spake2.startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
+      const oldState = await spake2().startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
       const oldMessage = oldState.getMessage()
       const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
         'body': {

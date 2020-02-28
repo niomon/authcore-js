@@ -50,7 +50,7 @@
     "hdkey": "^1.1.1",
     "lodash-es": "^4.17.15",
     "scrypt-js": "^2.0.4",
-    "spake2": "^1.0.2",
+    "spake2": "https://gitlab.com/blocksq/spake2-js.git#master",
     "swagger-client": "^3.8.22",
     "web3-provider-engine": "^14.2.0"
   },

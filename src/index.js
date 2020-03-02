@@ -1,9 +1,7 @@
 import { AuthCoreWidgets } from './widgets.js'
 
 export { AuthCoreAuthClient } from './auth/index.js'
-export { AuthCoreKeyVaultClient } from './keyvault/index.js'
 export { AuthCoreManagementClient } from './management/index.js'
-export { AuthCoreCosmosProvider } from './cosmos_provider.js'
 export { AuthCoreWidgets } from './widgets.js'
 
 // Provide AuthCoreWidgets in browser to provide simplest example for AuthCoreWidgets

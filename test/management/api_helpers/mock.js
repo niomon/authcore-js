@@ -20,13 +20,6 @@ function mockAPI(steps) {
             { 'Content-Type': 'application/json' }
           )
         break
-      case 'SwaggerKeyVaultClient':
-        nock('http://0.0.0.0:13337').get('/api/keyvaultapi/keyvault.swagger.json').times(count)
-          .replyWithFile(
-            200, `${__dirname}/../../keyvault.swagger.json`,
-            { 'Content-Type': 'application/json' }
-          )
-        break
       case 'SwaggerClient404':
         nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json').times(count)
           .reply(404, '404 page not found')

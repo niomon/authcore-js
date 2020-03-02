@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js'
-
 /**
  * Converts a string to buffer.
  *
@@ -12,22 +10,6 @@ import BigNumber from 'bignumber.js'
  */
 function fromString (str) {
   return Buffer.from(str)
-}
-
-/**
- * Converts an integer to buffer.
- *
- * @private
- * @param {BigNumber} int Integer to-be converted.
- * @example
- * fromBigNumber('87521618088882671231069284')
- * // returns <Buffer 48 65 6c 6c 6f 20 77 6f 72 6c 64>
- * @returns {Buffer} The buffer that is converted from the integer.
- */
-function fromBigNumber (int) {
-  const hexPayload = int.toString(16)
-  const pad = hexPayload.length % 2
-  return fromHex('0'.repeat(pad) + hexPayload)
 }
 
 /**
@@ -103,20 +85,6 @@ function toString (buf) {
 }
 
 /**
- * Converts a buffer to an big number.
- *
- * @private
- * @param {Buffer} buf Buffer to-be converted.
- * @example
- * toBigNumber(Buffer.from([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64]))
- * // returns '87521618088882671231069284'
- * @returns {BigNumber} The integer that is converted from the buffer.
- */
-function toBigNumber (buf) {
-  return new BigNumber(toHex(buf), 16)
-}
-
-/**
  * Converts a buffer to a hexadecimal string.
  *
  * @private
@@ -174,13 +142,11 @@ function toUint8Array (buf) {
 
 export {
   fromString,
-  fromBigNumber,
   fromHex,
   fromBase64,
   fromBase64URLSafe,
   fromUint8Array,
   toString,
-  toBigNumber,
   toHex,
   toBase64,
   toBase64URLSafe,

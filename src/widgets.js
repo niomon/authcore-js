@@ -36,8 +36,6 @@ function clearChildren (id) {
  * @param {Function} options.onLoaded Callback function when the widget page is loaded.
  * @param {Function} options.unauthenticated Callback function when the widget returns unauthenticated status, most likely to occur due to expired access token.
  * @param {Function} options.successRegister Callback function when the corresponding action has successfully completed.
- * @param {Function} options.onCosmosSignApproved Callback function when the Cosmos signing is approved.
- * @param {Function} options.onCosmosSignRejected Callback function when the Cosmos Signing is rejected.
  * @param {Function} options.onTokenUpdated Callback function when the access token is updated successfully.
  * @param {Function} options.onTokenUpdatedFail Callback function when the access token cannot be updated.
  * @param {Function} options.analyticsHook Hook for the analytics.
@@ -70,8 +68,6 @@ class AuthCoreWidget {
       'onLoaded',
       'unauthenticated',
       'successRegister',
-      'onCosmosSignApproved',
-      'onCosmosSignRejected',
       'onTokenUpdated',
       'onTokenUpdatedFail',
       'onRefreshTokenRemoved',
@@ -434,46 +430,6 @@ class Settings extends AuthCoreWidget {
 }
 
 /**
- * The ethereum sign approval widget.
- *
- * @augments AuthCoreWidget
- */
-class EthereumSignApproval extends AuthCoreWidget {
-  constructor (options) {
-    super(options)
-    this.widget.src = this.buildWidgetSrc(options, 'ethereum-sign-approval')
-    this.callbacks['_onEthereumSignApproved'] = () => {
-      options.approve()
-      this.destroy()
-    }
-    this.callbacks['_onEthereumSignRejected'] = () => {
-      options.reject()
-      this.destroy()
-    }
-  }
-}
-
-/**
- * The Cosmos sign approval widget.
- *
- * @augments AuthCoreWidget
- */
-class CosmosSignApproval extends AuthCoreWidget {
-  constructor (options) {
-    super(options)
-    this.widget.src = this.buildWidgetSrc(options, 'cosmos-sign-approval')
-    this.callbacks['_onCosmosSignApproved'] = () => {
-      options.approve()
-      this.destroy()
-    }
-    this.callbacks['_onCosmosSignRejected'] = () => {
-      options.reject()
-      this.destroy()
-    }
-  }
-}
-
-/**
  * The sign out widget that is used to invalidate refresh token.
  *
  * @augments AuthCoreWidget
@@ -529,8 +485,6 @@ const AuthCoreWidgets = {
   Contacts,
   Profile,
   Settings,
-  EthereumSignApproval,
-  CosmosSignApproval,
   SignOut,
   RefreshToken
 }

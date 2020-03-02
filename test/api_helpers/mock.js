@@ -20,13 +20,6 @@ function mockAPI(steps) {
             { 'Content-Type': 'application/json' }
           )
         break
-      case 'SwaggerKeyVaultClient':
-        nock('http://0.0.0.0:13337').get('/api/keyvaultapi/keyvault.swagger.json').times(count)
-          .replyWithFile(
-            200, `${__dirname}/../keyvault.swagger.json`,
-            { 'Content-Type': 'application/json' }
-          )
-        break
       case 'SwaggerClient404':
         nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json').times(count)
           .reply(404, '404 page not found')
@@ -402,27 +395,6 @@ function mockAPI(steps) {
         nock('http://0.0.0.0:13337').put('/api/management/users/1/metadata').times(count)
           .replyWithFile(
             200, `${__dirname}/update_metadata.json`,
-            { 'Content-Type': 'application/json' }
-          )
-        break
-      case 'OperationListHDChildPublicKeys':
-        nock('http://0.0.0.0:13337').post('/api/keyvault/operation').times(count)
-          .replyWithFile(
-            200, `${__dirname}/operation_list_hd_child_public_keys.json`,
-            { 'Content-Type': 'application/json' }
-          )
-        break
-      case 'OperationEthereumSignTx':
-        nock('http://0.0.0.0:13337').post('/api/keyvault/operation').times(count)
-          .replyWithFile(
-            200, `${__dirname}/operation_ethereum_sign_tx.json`,
-            { 'Content-Type': 'application/json' }
-          )
-        break
-      case 'OperationEthereumSignMessage':
-        nock('http://0.0.0.0:13337').post('/api/keyvault/operation').times(count)
-          .replyWithFile(
-            200, `${__dirname}/operation_ethereum_sign_message.json`,
             { 'Content-Type': 'application/json' }
           )
         break

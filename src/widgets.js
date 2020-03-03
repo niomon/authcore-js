@@ -49,7 +49,7 @@ class AuthCoreWidget {
     let animationStyle = document.createElement('style')
     animationStyle.type = 'text/css'
     document.head.appendChild(animationStyle)
-    animationStyle.sheet.insertRule(`@keyframes --widgets-spin { 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }`, animationStyle.length)
+    animationStyle.sheet.insertRule(`@keyframes --widgets-spin { to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }`, animationStyle.length)
 
     if (!options.root) {
       options.root = new URL('widgets/', window.location.origin)
@@ -84,38 +84,38 @@ class AuthCoreWidget {
     this.containerId = toHex(crypto.randomBytes(8))
     this.accessToken = options.accessToken
 
-    // Set transition time in milliseconds
-    const transitionTime = 100
-
     const widget = document.createElement('iframe')
     widget.style['height'] = '0px'
     widget.style['width'] = '100%'
     widget.style['overflow'] = 'hidden'
     widget.style['border'] = '0'
     widget.scrolling = 'no'
-    // Set animation for hide and show behaviour
-    widget.style['transition'] = `opacity ${transitionTime}ms ease`
     // Hide the widget at the beginning
     widget.style['opacity'] = 0
 
-    // SVG information refers to Load.svg in authcore-widgets
-    let path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-    path.setAttributeNS(null, 'd', 'M31.5,0A31.473,31.473,0,1,0,43.467,2.353')
-    path.setAttributeNS(null, 'transform', 'translate(1.5 1.5)')
-    path.setAttributeNS(null, 'fill', 'none')
-    path.setAttributeNS(null, 'stroke', primaryColour)
-    path.setAttributeNS(null, 'stroke-linecap', 'round')
-    path.setAttributeNS(null, 'stroke-width', 3)
+    // Spinner information. Referenced from implementation in bootstrap
+    const spinnerSpan = document.createElement('span')
+    spinnerSpan.style['position'] = 'absolute'
+    spinnerSpan.style['width'] = '1px'
+    spinnerSpan.style['height'] = '1px'
+    spinnerSpan.style['padding'] = '0'
+    spinnerSpan.style['margin'] = '-1px'
+    spinnerSpan.style['overflow'] = 'hidden'
+    spinnerSpan.style['clip'] = 'rect(0,0,0,0)'
+    spinnerSpan.style['white-space'] = 'nowrap'
+    spinnerSpan.style['border'] = '0'
 
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    svg.setAttributeNS(null, 'width', 66)
-    svg.setAttributeNS(null, 'height', 66)
-    svg.style['animation'] = `--widgets-spin 1.5s cubic-bezier(0, 0.6, 0.36, 1) infinite`
-    svg.style['animation-delay'] = '0.4s'
-    svg.style['opacity'] = 0
-    svg.style['transition'] = `opacity ${transitionTime}ms ease`
-    svg.style['margin-top'] = '1.5rem'
-    svg.appendChild(path)
+    const spinnerDiv = document.createElement('div')
+    spinnerDiv.setAttributeNS(null, 'id', 'loading-spinner')
+    spinnerDiv.style['display'] = 'inline-block'
+    spinnerDiv.style['width'] = '2rem'
+    spinnerDiv.style['height'] = '2rem'
+    spinnerDiv.style['vertical-align'] = 'text-bottom'
+    spinnerDiv.style['border'] = `.25em solid ${primaryColour}`
+    spinnerDiv.style['border-right-color'] = 'transparent'
+    spinnerDiv.style['border-radius'] = '50%'
+    spinnerDiv.style['animation'] = '--widgets-spin 0.75s linear infinite'
+    spinnerDiv.appendChild(spinnerSpan)
 
     if (!display) {
       widget.id = this.containerId
@@ -128,10 +128,8 @@ class AuthCoreWidget {
       const containerElement = document.getElementById(container)
       containerElement.style['text-align'] = 'center'
       // Append the loading spinner and with transition time to show
-      containerElement.appendChild(svg)
-      setTimeout(() => {
-        svg.style['opacity'] = 1
-      }, transitionTime)
+      containerElement.appendChild(spinnerDiv)
+      spinnerDiv.style['opacity'] = 1
       containerElement.appendChild(widget)
     }
 
@@ -148,15 +146,13 @@ class AuthCoreWidget {
     // Callback to be called from widget component to notify the widget is loaded
     this.callbacks['_onLoaded'] = () => {
       // Set to hide the loading spinner
-      svg.style['opacity'] = 0
-      setTimeout(() => {
-        // Show the widget instance and remove loading spinner
-        widget.style['opacity'] = 1
-        svg.remove()
-        // Provide `overflow: auto` to ensure scroll behaviour, parent in client side should
-        // also be set if necessary(Mainly case for modal dialog)
-        document.getElementById(container).style['overflow'] = 'auto'
-      }, transitionTime)
+      spinnerDiv.style['opacity'] = 0
+      // Show the widget instance and remove loading spinner
+      widget.style['opacity'] = 1
+      spinnerDiv.remove()
+      // Provide `overflow: auto` to ensure scroll behaviour, parent in client side should
+      // also be set if necessary(Mainly case for modal dialog)
+      document.getElementById(container).style['overflow'] = 'auto'
       // Sends the access token to the widget
       this.widget.contentWindow.postMessage({
         type: 'AuthCore_accessToken',

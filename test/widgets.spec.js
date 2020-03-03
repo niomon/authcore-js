@@ -43,20 +43,29 @@ suite('widgets.js', function () {
       assert.equal(iframes.length, 1)
 
       const iframe = iframes[0]
-      assert.equal(iframe.style.width, '100%')
-      assert.equal(iframe.style.overflow, 'hidden')
+      assert.equal(iframe.style['width'], '100%')
+      assert.equal(iframe.style['overflow'], 'hidden')
 
-      const svg = document.getElementById('authcore-sign-in-widget').getElementsByTagName('svg')[0]
-      assert.equal(svg.style.opacity, '0')
-      assert.match(svg.style.transition, /opacity/)
-      assert.match(svg.style.animation, /--widgets-spin/)
-      assert.equal(svg.style['animation-delay'], '0.4s')
-      assert.equal(svg.style['margin-top'], '1.5rem')
+      const div = document.getElementById('loading-spinner')
+      assert.equal(div.style['display'], 'inline-block')
+      assert.equal(div.style['width'], '2rem')
+      assert.equal(div.style['height'], '2rem')
+      assert.equal(div.style['vertical-align'], 'text-bottom')
+      assert.equal(div.style['border'], `.25em solid #3051e3`)
+      assert.equal(div.style['border-right-color'], 'transparent')
+      assert.equal(div.style['border-radius'], '50%')
+      assert.equal(div.style['animation'], '--widgets-spin 0.75s linear infinite')
 
-      const path = svg.getElementsByTagName('path')[0]
-      assert.equal(path.getAttribute('fill'), 'none')
-      assert.equal(path.getAttribute('stroke-linecap'), 'round')
-      assert.equal(path.getAttribute('stroke-width'), 3)
+      const span = div.getElementsByTagName('span')[0]
+      assert.equal(span.style['position'], 'absolute')
+      assert.equal(span.style['width'], '1px')
+      assert.equal(span.style['height'], '1px')
+      assert.equal(span.style['padding'], '0px')
+      assert.equal(span.style['margin'], '-1px')
+      assert.equal(span.style['overflow'], 'hidden')
+      assert.equal(span.style['clip'], 'rect(0px, 0px, 0px, 0px)')
+      assert.equal(span.style['white-space'], 'nowrap')
+      assert.equal(span.style['border'], '0px')
     })
 
     test('should be able to update height when `AuthCore__updateHeight` message is posted', function (done) {
@@ -70,7 +79,7 @@ suite('widgets.js', function () {
       window.addEventListener('message', e => {
         const { type } = e.data
         if (type === 'AuthCore__updateHeight') {
-          assert.equal(iframe.style.height, '256px')
+          assert.equal(iframe.style['height'], '256px')
           done()
         }
       })
@@ -839,7 +848,7 @@ suite('widgets.js', function () {
         // Testing
         const iframe = document.getElementsByTagName('iframe')[0]
         assert.exists(iframe)
-        assert.equal(iframe.style.display, 'none')
+        assert.equal(iframe.style['display'], 'none')
       })
     })
   })

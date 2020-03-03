@@ -88,10 +88,10 @@ class AuthCoreWidget {
     const transitionTime = 100
 
     const widget = document.createElement('iframe')
-    widget.style.height = '0px'
-    widget.style.width = '100%'
-    widget.style.overflow = 'hidden'
-    widget.style.border = '0'
+    widget.style['height'] = '0px'
+    widget.style['width'] = '100%'
+    widget.style['overflow'] = 'hidden'
+    widget.style['border'] = '0'
     widget.scrolling = 'no'
     // Set animation for hide and show behaviour
     widget.style['transition'] = `opacity ${transitionTime}ms ease`
@@ -119,8 +119,8 @@ class AuthCoreWidget {
 
     if (!display) {
       widget.id = this.containerId
-      widget.style.width = '0px'
-      widget.style.display = 'none'
+      widget.style['width'] = '0px'
+      widget.style['display'] = 'none'
       document.body.appendChild(widget)
     } else {
       // For Safari, Webkit creates scrollbar with `overflow: auto` and if the content
@@ -141,7 +141,7 @@ class AuthCoreWidget {
     this.callbacks = callbacks
 
     this.callbacks['_updateHeight'] = data => {
-      this.widget.style.height = `${data.height}px`
+      this.widget.style['height'] = `${data.height}px`
     }
     this.callbacks['_onSuccess'] = (data) => {
     }

@@ -252,6 +252,7 @@ class AuthCoreWidget {
       privacyCheckbox = undefined,
       setRefreshToken = false,
       successRedirectUrl = '',
+      socialLoginPaneOption = 'grid',
       socialLoginPaneStyle = 'bottom',
       // For Profile widget only
       showAvatar = undefined
@@ -269,6 +270,10 @@ class AuthCoreWidget {
     if (typeof requireUsername !== 'boolean') {
       throw new Error('requireUsername must be boolean')
     }
+    const allowedSocialLoginPaneOption = [
+      'list',
+      'grid'
+    ]
     const allowedSocialLoginPaneStyle = [
       'top',
       'bottom'
@@ -293,8 +298,11 @@ class AuthCoreWidget {
         if (typeof setRefreshToken !== 'boolean') {
           throw new Error('setRefreshToken must be a boolean')
         }
+        if (!allowedSocialLoginPaneOption.includes(socialLoginPaneOption)) {
+          throw new Error('socialLoginPaneOption only support list or grid as input')
+        }
         if (!allowedSocialLoginPaneStyle.includes(socialLoginPaneStyle)) {
-          throw new Error('socialLoginPaneStyle only support top and bottom as input')
+          throw new Error('socialLoginPaneStyle only support top or bottom as input')
         }
         break
       case 'profile':
@@ -325,6 +333,7 @@ class AuthCoreWidget {
       privacyLink: privacyLink,
       privacyCheckbox: privacyCheckbox,
       setRefreshToken: setRefreshToken,
+      socialLoginPaneOption: socialLoginPaneOption,
       socialLoginPaneStyle: socialLoginPaneStyle,
       showAvatar: showAvatar,
       successRedirectUrl: successRedirectUrl

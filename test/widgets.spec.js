@@ -570,6 +570,66 @@ suite('widgets.js', function () {
         assert.match(iframe.src, /contact=test%40example.com/)
       })
 
+      suite('Related socialLoginPaneOption parameter', function () {
+        test('should have default grid socialLoginPaneOption parameter', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneOption=grid/)
+        })
+        test('should be able to set socialLoginPaneOption parameter to list', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            socialLoginPaneOption: 'list'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneOption=list/)
+        })
+        test('should be able to set socialLoginPaneOption parameter to grid', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            socialLoginPaneOption: 'grid'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /socialLoginPaneOption=grid/)
+        })
+        test('should throw error if socialLoginPaneOption parameter is not list or grid', async function () {
+          assert.throws(() => {
+            new AuthCoreWidgets.Login({
+              clientId: 'example-client',
+              container: 'authcore-sign-in-widget',
+              socialLoginPaneOption: 'notallow',
+              root: 'http://0.0.0.0:1337'
+            })
+          }, Error, 'socialLoginPaneOption only support list or grid as input')
+        })
+      })
+
       suite('Related socialLoginPaneStyle parameter', function () {
         test('should have default bottom socialLoginPaneStyle parameter', async function () {
           // Preparing
@@ -626,7 +686,7 @@ suite('widgets.js', function () {
               socialLoginPaneStyle: 'notallow',
               root: 'http://0.0.0.0:1337'
             })
-          }, Error, 'socialLoginPaneStyle only support top and bottom as input')
+          }, Error, 'socialLoginPaneStyle only support top or bottom as input')
         })
       })
 

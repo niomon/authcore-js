@@ -570,6 +570,66 @@ suite('widgets.js', function () {
         assert.match(iframe.src, /contact=test%40example.com/)
       })
 
+      suite('Related buttonSize parameter', function () {
+        test('should have default large buttonSize parameter', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /buttonSize=large/)
+        })
+        test('should be able to set buttonSize parameter to normal', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            buttonSize: 'normal'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /buttonSize=normal/)
+        })
+        test('should be able to set buttonSize parameter to large', async function () {
+          // Preparing
+          new AuthCoreWidgets.Login({
+            clientId: 'example-client',
+            container: 'authcore-sign-in-widget',
+            root: 'http://0.0.0.0:1337',
+            buttonSize: 'large'
+          })
+
+          // Testing
+          const iframe = document.getElementById('authcore-sign-in-widget').getElementsByTagName('iframe')[0]
+          assert.exists(iframe)
+
+          assert.match(iframe.src, /^http:\/\/0.0.0.0:1337\/signin/)
+          assert.match(iframe.src, /buttonSize=large/)
+        })
+        test('should throw error if buttonSize parameter is not normal or large', async function () {
+          assert.throws(() => {
+            new AuthCoreWidgets.Login({
+              clientId: 'example-client',
+              container: 'authcore-sign-in-widget',
+              buttonSize: 'notallow',
+              root: 'http://0.0.0.0:1337'
+            })
+          }, Error, 'buttonSize only support normal or large as input')
+        })
+      })
+
       suite('Related socialLoginPaneOption parameter', function () {
         test('should have default grid socialLoginPaneOption parameter', async function () {
           // Preparing

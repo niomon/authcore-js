@@ -254,6 +254,7 @@ class AuthCoreWidget {
       successRedirectUrl = '',
       socialLoginPaneOption = 'grid',
       socialLoginPaneStyle = 'bottom',
+      buttonSize = 'large',
       // For Profile widget only
       showAvatar = undefined
     } = options
@@ -277,6 +278,10 @@ class AuthCoreWidget {
     const allowedSocialLoginPaneStyle = [
       'top',
       'bottom'
+    ]
+    const allowedButtonSize = [
+      'normal',
+      'large'
     ]
     switch (name) {
       case 'signin':
@@ -303,6 +308,9 @@ class AuthCoreWidget {
         }
         if (!allowedSocialLoginPaneStyle.includes(socialLoginPaneStyle)) {
           throw new Error('socialLoginPaneStyle only support top or bottom as input')
+        }
+        if (!allowedButtonSize.includes(buttonSize)) {
+          throw new Error('buttonSize only support normal or large as input')
         }
         break
       case 'profile':
@@ -335,6 +343,7 @@ class AuthCoreWidget {
       setRefreshToken: setRefreshToken,
       socialLoginPaneOption: socialLoginPaneOption,
       socialLoginPaneStyle: socialLoginPaneStyle,
+      buttonSize: buttonSize,
       showAvatar: showAvatar,
       successRedirectUrl: successRedirectUrl
     }

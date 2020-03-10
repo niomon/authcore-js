@@ -671,6 +671,7 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * TO-BE-DEPRECATED from server due to StartVerifyContact API.
    * Creates an email contact.
    *
    * @public
@@ -697,6 +698,7 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * TO-BE-DEPRECATED from server due to StartVerifyContact API.
    * Creates a phone contact.
    *
    * @public
@@ -753,6 +755,7 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * TO-BE-DEPRECATED from server.
    * Starts to verify an owned contact by requesting a verification email / SMS.
    *
    * @public
@@ -786,6 +789,25 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * Complete to verify a primary contact.
+   *
+   * @public
+   * @param {string} type The type of the primary contact to-be verified, either "email" or "phone".
+   * @param {string} code The verification code.
+   * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
+   */
+  async completeVerifyPrimaryContact (type, code) {
+    const AuthService = await this._getAuthService()
+    await AuthService.CompleteVerifyPrimaryContact({
+      'body': {
+        type: type.toUpperCase(),
+        code: code
+      }
+    })
+  }
+
+  /**
+   * TO-BE-DEPRECATED from server.
    * Verifies a contact by verification token (the user need not to be authenticated to use this).
    *
    * @public
@@ -802,6 +824,7 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * TO-BE-DEPRECATED from server.
    * Verifies a contact by verification code.
    *
    * @public

@@ -46,10 +46,6 @@
     "spake2": "https://gitlab.com/blocksq/spake2-js.git#master",
     "swagger-client": "^3.8.22"
   },
-  "resolutions": {
-    "**/bn.js": "^5.1.1",
-    "**/elliptic": "^6.5.0"
-  },
   "nyc": {
     "include": [
       "src"

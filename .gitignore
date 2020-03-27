@@ -83,3 +83,6 @@ typings/
 /jsdoc.md
 
 .package-alias.json
+
+# Transpile build
+dist/

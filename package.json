@@ -2,11 +2,12 @@
   "name": "authcore-js",
   "version": "1.0.1",
   "description": "",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "module": "src/index.js",
   "scripts": {
     "test": "NODE_ENV=test nyc --all --reporter=html --reporter=text-summary mocha --recursive test --exit",
-    "build": "webpack",
-    "analyze-bundle": "webpack-bundle-analyzer",
+    "build": "babel ./src --out-dir ./dist --source-maps --copy-files",
+    "prepare": "npm run build",
     "lint": "eslint src --max-warnings=0",
     "lint-fix": "eslint src --fix",
     "doc": "documentation build src/** -f md -o jsdoc.md -a public undefined --markdown-toc-max-depth 2 --shallow --config doc.yaml"
@@ -14,8 +15,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/preset-env": "^7.8.4",
     "@babel/register": "^7.8.3",
+    "@babel/runtime-corejs3": "^7.9.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "documentation": "^12.0.2",
@@ -35,15 +39,13 @@
     "nock": "^10.0.3",
     "nyc": "^13.1.0",
     "regenerator-runtime": "^0.13.3",
-    "url": "^0.11.0",
-    "webpack": "^4.25.1",
-    "webpack-cli": "^3.1.2"
+    "url": "^0.11.0"
   },
   "dependencies": {
     "axios": "^0.19.2",
     "base32-encode": "^1.1.0",
     "color": "^3.1.2",
-    "lodash-es": "^4.17.15",
+    "lodash": "^4.17.15",
     "spake2": "https://gitlab.com/blocksq/spake2-js.git#master",
     "swagger-client": "^3.8.22"
   },

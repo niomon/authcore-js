@@ -3,6 +3,7 @@ import axios from 'axios'
 import AuthnAPI from './authn/api'
 import AuthnTransaction from './authn/transaction'
 import Utils from './utils'
+import OAuth from './oauth'
 
 export class Authcore {
   constructor (config = {}) {
@@ -18,16 +19,13 @@ export class Authcore {
 
     this.clientId = config.clientId
     this.accessToken = config.accessToken
-    this.baseURL = config.baseURL
+    this.baseURL = new URL(config.baseURL)
+
+    this._http = axios.create({ baseURL: config.baseURL })
 
     this.authn = new AuthnAPI(this)
     this.authnTransaction = new AuthnTransaction(this)
+    this.oauth = new OAuth(this)
     this.utils = new Utils(this)
-  }
-
-  _http () {
-    return axios.create({
-      baseURL: this.baseURL
-    })
   }
 }

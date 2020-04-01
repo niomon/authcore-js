@@ -38,7 +38,7 @@ class AuthnAPI {
     if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
       throw new Error('codeChallenge must be a string')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn', {
+    const resp = await this.authcore._http.post(basePath + '/authn', {
       'client_id': this.authcore.clientId,
       'handle': handle,
       'redirect_uri': redirectURI,
@@ -62,7 +62,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(message)) {
       throw new Error('message must be a buffer')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/password', {
+    const resp = await this.authcore._http.post(basePath + '/authn/password', {
       'state_token': stateToken,
       'message': message.toString('base64')
     })
@@ -84,7 +84,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(response)) {
       throw new Error('response must be a buffer')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/password/verify', {
+    const resp = await this.authcore._http.post(basePath + '/authn/password/verify', {
       'state_token': stateToken,
       'verifier': response.toString('base64')
     })
@@ -115,7 +115,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(message)) {
       throw new Error('message must be a buffer')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/mfa/' + method, {
+    const resp = await this.authcore._http.post(basePath + '/authn/mfa/' + method, {
       'state_token': stateToken,
       'message': message.toString('base64')
     })
@@ -144,7 +144,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(verifier)) {
       throw new Error('verifier must be a buffer')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/mfa/' + method + '/verify', {
+    const resp = await this.authcore._http.post(basePath + '/authn/mfa/' + method + '/verify', {
       'state_token': stateToken,
       'verifier': verifier.toString('base64')
     })
@@ -181,7 +181,7 @@ class AuthnAPI {
     if (typeof user.password_verifier !== 'object') {
       throw new Error('user.password_verifier must be an object')
     }
-    const resp = await this.authcore._http().post(basePath + '/signup', {
+    const resp = await this.authcore._http.post(basePath + '/signup', {
       'client_id': this.authcore.clientId,
       'redirect_uri': redirectURI,
       'email': user.email,
@@ -224,7 +224,7 @@ class AuthnAPI {
     if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
       throw new Error('codeChallenge must be a string')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
+    const resp = await this.authcore._http.post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
       'client_id': this.authcore.clientId,
       'redirect_uri': redirectURI,
       'code_challenge_method': options.codeChallengeMethod,
@@ -247,7 +247,7 @@ class AuthnAPI {
     if (typeof code !== 'string') {
       throw new Error('code is required')
     }
-    const resp = await this.authcore._http().post(basePath + '/authn/idp/-/verify', {
+    const resp = await this.authcore._http.post(basePath + '/authn/idp/-/verify', {
       'state_token': stateToken,
       'code': code
     })
@@ -279,7 +279,7 @@ class AuthnAPI {
       [tokenParam]: token
     }
     Object.assign(req, options)
-    const resp = await this.authcore._http().post(basePath + '/token', req)
+    const resp = await this.authcore._http.post('/oauth/token', req)
     return resp.data
   }
 }

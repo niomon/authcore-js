@@ -4,6 +4,7 @@ import AuthnAPI from './authn/api'
 import AuthnTransaction from './authn/transaction'
 import Utils from './utils'
 import OAuth from './oauth'
+import Settings from './settings'
 
 export class Authcore {
   constructor (config = {}) {
@@ -26,6 +27,7 @@ export class Authcore {
     this.authn = new AuthnAPI(this)
     this.authnTransaction = new AuthnTransaction(this)
     this.oauth = new OAuth(this)
+    this.settings = new Settings(this)
     this.utils = new Utils(this)
   }
 }

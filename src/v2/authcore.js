@@ -11,7 +11,7 @@ export class Authcore {
       throw new Error('clientId is required')
     }
     if (typeof config.baseURL !== 'string') {
-      throw new Error('clientId is required')
+      throw new Error('baseURL is required')
     }
     if (config.accessToken && typeof config.accessToken !== 'string') {
       throw new Error('accessToken must be a string')

@@ -1,9 +1,9 @@
-import spake2 from '../../crypto/spake2.js'
+import spake2 from '../crypto/spake2.js'
 
 /**
- * A higher-level API for performance authentication transaction.
+ * A higher-level API for performing authentication transaction.
  */
-class AuthnTransaction {
+class Authn {
   constructor (authcore) {
     this.authcore = authcore
   }
@@ -17,7 +17,7 @@ class AuthnTransaction {
    * @returns {object} An authentication state.
    */
   async start (handle, redirectURI, options = {}) {
-    return this.authcore.authn.start(handle, redirectURI, options)
+    return this.authcore.client.start(handle, redirectURI, options)
   }
 
   /**
@@ -47,12 +47,12 @@ class AuthnTransaction {
     const salt = Buffer.from(state['password_salt'], 'base64')
     const ps = await spake2().startClient('authcoreuser', 'authcore', password, salt)
     const message = ps.getMessage()
-    const challenge = await this.authcore.authn.requestPassword(stateToken, message)
+    const challenge = await this.authcore.client.requestPassword(stateToken, message)
 
     const sharedSecret = ps.finish(challenge)
     const confirmation = sharedSecret.getConfirmation()
 
-    return this.authcore.authn.verifyPassword(stateToken, confirmation)
+    return this.authcore.client.verifyPassword(stateToken, confirmation)
   }
 
   /**
@@ -70,7 +70,7 @@ class AuthnTransaction {
     }
     const stateToken = state['state_token']
     const message = Buffer.alloc()
-    return this.authcore.authn.requestMFA(stateToken, 'sms_otp', message)
+    return this.authcore.client.requestMFA(stateToken, 'sms_otp', message)
   }
 
   /**
@@ -92,7 +92,7 @@ class AuthnTransaction {
     }
     const stateToken = state['state_token']
     const verifier = Buffer.from(code)
-    return this.authcore.authn.verifyMFA(stateToken, 'sms_otp', verifier)
+    return this.authcore.client.verifyMFA(stateToken, 'sms_otp', verifier)
   }
 
   /**
@@ -114,7 +114,7 @@ class AuthnTransaction {
     }
     const stateToken = state['state_token']
     const verifier = Buffer.from(code)
-    return this.authcore.authn.verifyMFA(stateToken, 'totp', verifier)
+    return this.authcore.client.verifyMFA(stateToken, 'totp', verifier)
   }
 
   /**
@@ -136,8 +136,8 @@ class AuthnTransaction {
     }
     const stateToken = state['state_token']
     const verifier = Buffer.from(code)
-    return this.authcore.authn.verifyMFA(stateToken, 'backup_code', verifier)
+    return this.authcore.client.verifyMFA(stateToken, 'backup_code', verifier)
   }
 }
 
-export default AuthnTransaction
+export default Authn

@@ -1,13 +1,11 @@
-import { Buffer } from 'buffer'
+import axios from 'axios'
 
 const basePath = '/api/v2'
 
 /**
- * API client for Authcore Authn API v2.
- *
- * AuthnTransaction provides an alternative higher level API for password-based authentication.
+ * Authcore API 2.0 Client.
  */
-class AuthnAPI {
+class Client {
   constructor (authcore) {
     this.authcore = authcore
   }
@@ -38,7 +36,7 @@ class AuthnAPI {
     if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
       throw new Error('codeChallenge must be a string')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn', {
+    const resp = await this._http(false).post(basePath + '/authn', {
       'client_id': this.authcore.clientId,
       'handle': handle,
       'redirect_uri': redirectURI,
@@ -62,7 +60,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(message)) {
       throw new Error('message must be a buffer')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/password', {
+    const resp = await this._http(false).post(basePath + '/authn/password', {
       'state_token': stateToken,
       'message': message.toString('base64')
     })
@@ -84,7 +82,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(response)) {
       throw new Error('response must be a buffer')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/password/verify', {
+    const resp = await this._http(false).post(basePath + '/authn/password/verify', {
       'state_token': stateToken,
       'verifier': response.toString('base64')
     })
@@ -115,7 +113,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(message)) {
       throw new Error('message must be a buffer')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/mfa/' + method, {
+    const resp = await this._http(false).post(basePath + '/authn/mfa/' + method, {
       'state_token': stateToken,
       'message': message.toString('base64')
     })
@@ -144,7 +142,7 @@ class AuthnAPI {
     if (!Buffer.isBuffer(verifier)) {
       throw new Error('verifier must be a buffer')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/mfa/' + method + '/verify', {
+    const resp = await this._http(false).post(basePath + '/authn/mfa/' + method + '/verify', {
       'state_token': stateToken,
       'verifier': verifier.toString('base64')
     })
@@ -181,7 +179,7 @@ class AuthnAPI {
     if (typeof user.password_verifier !== 'object') {
       throw new Error('user.password_verifier must be an object')
     }
-    const resp = await this.authcore._http.post(basePath + '/signup', {
+    const resp = await this._http(false).post(basePath + '/signup', {
       'client_id': this.authcore.clientId,
       'redirect_uri': redirectURI,
       'email': user.email,
@@ -209,9 +207,6 @@ class AuthnAPI {
     if (!/^\w+$/.test(idp)) {
       throw new Error('invalid idp')
     }
-    if (typeof idp !== 'string') {
-      throw new Error('idp is required')
-    }
     if (typeof redirectURI !== 'string') {
       throw new Error('redirectURI is required')
     }
@@ -224,7 +219,7 @@ class AuthnAPI {
     if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
       throw new Error('codeChallenge must be a string')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
+    const resp = await this._http(false).post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
       'client_id': this.authcore.clientId,
       'redirect_uri': redirectURI,
       'code_challenge_method': options.codeChallengeMethod,
@@ -247,11 +242,91 @@ class AuthnAPI {
     if (typeof code !== 'string') {
       throw new Error('code is required')
     }
-    const resp = await this.authcore._http.post(basePath + '/authn/idp/-/verify', {
+    const resp = await this._http(false).post(basePath + '/authn/idp/-/verify', {
       'state_token': stateToken,
       'code': code
     })
     return resp.data
+  }
+
+  /**
+   * Start a third-party IDP binding transaction.
+   *
+   * @param {string} idp Name of the third-party IDP.
+   * @param {string} redirectURI URL to redirect to after a successful binding transaction.
+   * @returns {object} An authentication state.
+   */
+  async startIDPBinding (idp, redirectURI) {
+    if (typeof idp !== 'string') {
+      throw new Error('idp is required')
+    }
+    if (!/^\w+$/.test(idp)) {
+      throw new Error('invalid idp')
+    }
+    if (typeof idp !== 'string') {
+      throw new Error('idp is required')
+    }
+    const resp = await this._http(true).post(basePath + '/authn/idp_binding/' + encodeURIComponent(idp), {
+      'redirect_uri': redirectURI
+    })
+    return resp.data
+  }
+
+  /**
+   * Verify a third-party IDP authorization grant for IDP binding.
+   *
+   * @param {string} stateToken A state token.
+   * @param {string} code A authorization code grant.
+   * @returns {object} An authentication state.
+   */
+  async verifyIDPBinding (stateToken, code) {
+    if (typeof stateToken !== 'string') {
+      throw new Error('stateToken is required')
+    }
+    if (typeof code !== 'string') {
+      throw new Error('code is required')
+    }
+    const resp = await this._http(true).post(basePath + '/authn/idp_binding/-/verify', {
+      'state_token': stateToken,
+      'code': code
+    })
+    return resp.data
+  }
+
+  /**
+   * Get a authentication state by state token.
+   *
+   * @param {string} stateToken A state token.
+   * @returns {object} An authentication state.
+   */
+  async getAuthnState (stateToken) {
+    if (typeof stateToken !== 'string') {
+      throw new Error('stateToken is required')
+    }
+    const resp = await this._http(true).post(basePath + '/authn/get_state', {
+      'state_token': stateToken
+    })
+    return resp.data
+  }
+
+  // Returns a URL to Authcore's OAuth 2.0 sign in page.
+  authCodeURL (state, redirectURI, options = {}) {
+    if (typeof state !== 'string') {
+      throw new Error('state is required')
+    }
+    if (typeof redirectURI !== 'string') {
+      throw new Error('redirectURI is required')
+    }
+    if (typeof options !== 'object') {
+      throw new Error('options must be an object')
+    }
+    const params = new URLSearchParams()
+    params.append('client_id', this.authcore.clientId)
+    params.append('response_type', 'code')
+    params.append('redirect_uri', redirectURI)
+    params.append('scope', options.scope || '')
+    params.append('state', state)
+    return new URL('/oauth/authorize?' + params.toString(), this.authcore.baseURL).toString()
   }
 
   /**
@@ -279,9 +354,46 @@ class AuthnAPI {
       [tokenParam]: token
     }
     Object.assign(req, options)
-    const resp = await this.authcore._http.post('/oauth/token', req)
+    const resp = await this._http(false).post('/oauth/token', req)
     return resp.data
+  }
+
+  /**
+   * List current user's IDP bindings.
+   *
+   * @returns {object} List of user's IDP bindings.
+   */
+  async listCurrentUserIDP () {
+    const resp = await this._http(true).get(`${basePath}/users/current/idp`)
+    return resp.data
+  }
+
+  /**
+   * Delete a current user's IDP bindings.
+   *
+   * @param {string} idp An IDP name.
+   */
+  async deleteCurrentUserIDP (idp) {
+    if (typeof idp !== 'string') {
+      throw new Error('idp is required')
+    }
+    if (!/^\w+$/.test(idp)) {
+      throw new Error('invalid idp')
+    }
+    await this._http(true).delete(`${basePath}/users/current/idp/${encodeURIComponent(idp)}`)
+  }
+
+  _http (authenticated) {
+    const headers = {}
+    if (authenticated) {
+      const accessToken = this.authcore.tokenManager.get('access_token')
+      if (!accessToken) {
+        throw new Error('client not authenticated')
+      }
+      headers['Authorization'] = `Bearer ${accessToken}`
+    }
+    return axios.create({ baseURL: this.authcore.baseURL.toString(), headers })
   }
 }
 
-export default AuthnAPI
+export default Client

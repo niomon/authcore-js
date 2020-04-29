@@ -1,31 +1,26 @@
-import axios from 'axios'
-
-import AuthnAPI from './authn/api'
-import AuthnTransaction from './authn/transaction'
+import Authn from './authn'
+import Client from './client'
+import TokenManager from './token_manager'
 import Utils from './utils'
-import OAuth from './oauth'
 
 export class Authcore {
-  constructor (config = {}) {
-    if (typeof config.clientId !== 'string') {
+  constructor (options = {}) {
+    if (typeof options.clientId !== 'string') {
       throw new Error('clientId is required')
     }
-    if (typeof config.baseURL !== 'string') {
+    if (typeof options.baseURL !== 'string') {
       throw new Error('baseURL is required')
     }
-    if (config.accessToken && typeof config.accessToken !== 'string') {
+    if (options.accessToken && typeof options.accessToken !== 'string') {
       throw new Error('accessToken must be a string')
     }
 
-    this.clientId = config.clientId
-    this.accessToken = config.accessToken
-    this.baseURL = new URL(config.baseURL)
+    this.clientId = options.clientId
+    this.baseURL = new URL(options.baseURL)
 
-    this._http = axios.create({ baseURL: config.baseURL })
-
-    this.authn = new AuthnAPI(this)
-    this.authnTransaction = new AuthnTransaction(this)
-    this.oauth = new OAuth(this)
+    this.authn = new Authn(this)
+    this.client = new Client(this)
     this.utils = new Utils(this)
+    this.tokenManager = new TokenManager(this.clientId, options.tokenManager || {})
   }
 }

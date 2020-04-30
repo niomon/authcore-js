@@ -6,7 +6,18 @@ const basePath = '/api/v2'
  * Authcore API 2.0 Client.
  */
 class Client {
-  constructor (authcore) {
+  constructor (authcore, options = {}) {
+    if (typeof options !== 'object') {
+      throw new Error('options must be an object')
+    }
+    if (options.errorHandler) {
+      if (typeof options.errorHandler !== 'function') {
+        throw new Error('options.errorHandler must be a function')
+      }
+      this.errorHandler = options.errorHandler
+    } else {
+      this.errorHandler = defaultErrorHandler
+    }
     this.authcore = authcore
   }
 
@@ -387,13 +398,26 @@ class Client {
     const headers = {}
     if (authenticated) {
       const accessToken = this.authcore.tokenManager.get('access_token')
-      if (!accessToken) {
-        throw new Error('client not authenticated')
+      // Let server reject the request if an access token is not available to unify the error handling.
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`
       }
-      headers['Authorization'] = `Bearer ${accessToken}`
     }
-    return axios.create({ baseURL: this.authcore.baseURL.toString(), headers })
+    const http = axios.create({ baseURL: this.authcore.baseURL.toString(), headers })
+    http.interceptors.response.use(response => response, error => this.errorHandler(error))
+    return http
   }
+}
+
+/**
+ * Default error handler function.
+ *
+ * @param {object} e An error.
+ * @returns {Promise} A promise.
+ */
+function defaultErrorHandler (e) {
+  console.error('Authcore client: ', e)
+  return Promise.reject(e)
 }
 
 export default Client

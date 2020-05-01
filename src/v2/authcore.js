@@ -19,7 +19,7 @@ export class Authcore {
     this.baseURL = new URL(options.baseURL)
 
     this.authn = new Authn(this)
-    this.client = new Client(this)
+    this.client = new Client(this, options.client || {})
     this.utils = new Utils(this)
     this.tokenManager = new TokenManager(this.clientId, options.tokenManager || {})
   }

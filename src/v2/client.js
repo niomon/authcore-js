@@ -1,4 +1,5 @@
 import axios from 'axios'
+import spake2 from '../crypto/spake2.js'
 
 const basePath = '/api/v2'
 
@@ -400,12 +401,11 @@ class Client {
    * @param {number} userId The user's ID.
    * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
    * @param {number} rowsPerPage The number of events returns in a page.
-   * @param {string} order The order of the result returned.
    * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
    */
-  async listUserEvents (userId, pageToken, rowsPerPage, order) {
+  async listUserEvents (userId, pageToken, rowsPerPage) {
     if (typeof userId !== 'number') {
-      throw new Error('userId is required and has to be number format')
+      throw new Error('userId has to be number format')
     }
     if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
       throw new Error('pageToken has to be in string format')
@@ -414,14 +414,236 @@ class Client {
     params.append('user_id', userId)
     params.append('limit', rowsPerPage)
     params.append('page_token', pageToken)
-    params.append('order', order)
     const url = new URL(basePath + '/audit_logs?' + params.toString(), this.authcore.baseURL)
     const resp = await this._http(true).get(url.toString())
     return resp.data
   }
 
   /**
-   * Delete a user from user ID.
+   * List all events logs.
+   *
+   * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
+   * @param {number} rowsPerPage The number of events returns in a page.
+   * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
+   */
+  async listEvents (pageToken, rowsPerPage) {
+    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+      throw new Error('pageToken has to be in string format')
+    }
+    const params = new URLSearchParams()
+    params.append('limit', rowsPerPage)
+    params.append('page_token', pageToken)
+    const url = new URL(basePath + '/audit_logs?' + params.toString(), this.authcore.baseURL)
+    const resp = await this._http(true).get(url.toString())
+    return resp.data
+  }
+
+  /**
+   * List the sessions of a user from user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
+   * @param {number} rowsPerPage The number of events returns in a page.
+   * @returns {object} Result including the sessions list, page token for previous and next page and number of total items.
+   */
+  async listUserSessions (userId, pageToken, rowsPerPage) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+      throw new Error('pageToken has to be in string format')
+    }
+    const params = new URLSearchParams()
+    params.append('limit', rowsPerPage)
+    params.append('page_token', pageToken)
+    const url = `${basePath}/users/${userId}/sessions?${params.toString()}`
+    const resp = await this._http(true).get(url)
+    return resp.data
+  }
+
+  /**
+   * Get a session by session ID.
+   *
+   * @param {number} sessionId The session's ID.
+   * @returns {object} A session object.
+   */
+  async getSession (sessionId) {
+    if (typeof sessionId !== 'number') {
+      throw new Error('sessionId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/sessions/${sessionId}`)
+    return resp.data
+  }
+
+  /**
+   * Delete a session by session ID.
+   *
+   * @param {number} sessionId The session's ID.
+   */
+  async deleteSession (sessionId) {
+    if (typeof sessionId !== 'number') {
+      throw new Error('sessionId is required and has to be number format')
+    }
+    await this._http(true).delete(`${basePath}/sessions/${sessionId}`)
+  }
+
+  /**
+   * List available languages for template.
+   *
+   * @returns {object} List of available languages.
+   */
+  async listTemplateLanguages () {
+    const resp = await this._http(true).get(`${basePath}/templates`)
+    return resp.data
+  }
+
+  /**
+   * List templates with template type and language.
+   *
+   * @param {string} type Template type ('email'/'sms').
+   * @param {string} language Language string.
+   * @returns {object} List of template objects.
+   */
+  async listTemplates (type, language) {
+    if (type !== 'email' && type !== 'sms') {
+      throw new Error('type is not email or sms')
+    }
+    if (typeof language !== 'string') {
+      throw new Error('language has to be in string format')
+    }
+    const resp = await this._http(true).get(`${basePath}/templates/${type}/${language}`)
+    return resp.data
+  }
+
+  /**
+   * Get a template specified by template type, language and name.
+   *
+   * @param {string} type Template type ('email'/'sms').
+   * @param {string} language Language string.
+   * @param {string} templateName Template name.
+   * @returns {object} A template object.
+   */
+  async getTemplate (type, language, templateName) {
+    if (type !== 'email' && type !== 'sms') {
+      throw new Error('type is not email or sms')
+    }
+    if (typeof language !== 'string') {
+      throw new Error('language has to be in string format')
+    }
+    if (typeof templateName !== 'string') {
+      throw new Error('templateName has to be in string format')
+    }
+    const resp = await this._http(true).get(`${basePath}/templates/${type}/${language}/${templateName}`)
+    return resp.data
+  }
+
+  /**
+   * Update a template specified by template type, language and name.
+   *
+   * @param {string} type Template type ('email'/'sms').
+   * @param {string} language Language string.
+   * @param {string} templateName Template name.
+   * @param {object} newTemplate A updated template object.
+   */
+  async updateTemplate (type, language, templateName, newTemplate) {
+    if (type !== 'email' && type !== 'sms') {
+      throw new Error('type is not email or sms')
+    }
+    if (typeof language !== 'string') {
+      throw new Error('language has to be in string format')
+    }
+    if (typeof templateName !== 'string') {
+      throw new Error('templateName has to be in string format')
+    }
+    if (type === 'email') {
+      if (!newTemplate.subject || typeof newTemplate.subject !== 'string') {
+        throw new Error('newTemplate.subject is required and must be a string')
+      }
+      if (!newTemplate.html || typeof newTemplate.html !== 'string') {
+        throw new Error('newTemplate.html is required and must be a string')
+      }
+    }
+    if (!newTemplate.text || typeof newTemplate.text !== 'string') {
+      throw new Error('newTemplate.text is required and must be a string')
+    }
+    await this._http(true).put(`${basePath}/templates/${type}/${language}/${templateName}`, newTemplate)
+  }
+
+  /**
+   * Reset a template by template type, language and name.
+   *
+   * @param {string} type Template type ('email'/'sms').
+   * @param {string} language Language string.
+   * @param {string} templateName Template name.
+   * @returns {object} A template object.
+   */
+  async resetTemplate (type, language, templateName) {
+    if (type !== 'email' && type !== 'sms') {
+      throw new Error('type is not email or sms')
+    }
+    if (typeof language !== 'string') {
+      throw new Error('language has to be in string format')
+    }
+    if (typeof templateName !== 'string') {
+      throw new Error('templateName has to be in string format')
+    }
+    const resp = await this._http(true).delete(`${basePath}/templates/${type}/${language}/${templateName}`)
+    return (resp.status === 200)
+  }
+
+  /**
+   * List users.
+   *
+   * @param {number} rowsPerPage Number of users return in a page.
+   * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
+   * @param {boolean} ascending Boolean specify whether results is sorted ascending or not. If it is true result is sorted in ascending order.
+   * @param {string} sortKey Optional, key used to sort results.
+   * @param {object} options Object for the following query parameters.
+   * @param {string} options.email Optional, email used to filter results.
+   * @param {string} options.phoneNumber Optional, phone number used to filter results.
+   * @param {string} options.name Optional, name used to filter results.
+   * @param {string} options.preferredUsername Optional, preferred username used to filter results.
+   * @returns {object} Result includes the users list, page token for previous and next page and number of total items.
+   */
+  async listUsers (rowsPerPage, pageToken, ascending, sortKey = '', options = {}) {
+    let sortBy = ''
+    if (sortKey) {
+      const asc = ascending ? 'asc' : 'desc'
+      sortBy = `${sortKey} ${asc}`
+    }
+    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+      throw new Error('pageToken has to be in string format')
+    }
+
+    const params = new URLSearchParams()
+    params.append('limit', rowsPerPage)
+    params.append('page_token', pageToken)
+    params.append('sort_by', sortBy)
+    params.append('email', email)
+    params.append('phone_number', phoneNumber)
+    params.append('name', name)
+    params.append('preferred_username', preferredUsername)
+    const url = `${basePath}/users?${params.toString()}`
+    const resp = await this._http(true).get(url)
+    return resp.data
+  }
+
+  /**
+   * Get a user by user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @returns {object} A user object.
+   */
+  async getUser (userId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/users/${userId}`)
+    return resp.data
+  }
+
+  /**
+   * Delete a user by user ID.
    *
    * @param {number} userId The user's ID.
    */
@@ -429,8 +651,209 @@ class Client {
     if (typeof userId !== 'number') {
       throw new Error('userId is required and has to be number format')
     }
-    const url = new URL(basePath + '/users/' + userId, this.authcore.baseURL)
-    await this._http(true).delete(url)
+    await this._http(true).delete(`${basePath}/users/${userId}`)
+  }
+
+  /**
+   * Update a user specified by user ID and updated fields.
+   *
+   * @param {number} userId The user's ID.
+   * @param {object} options An object contains the following parameters.
+   * @param {string} options.name Optional, new name of user.
+   * @param {string} options.preferred_username Optional, new preferred username of user.
+   * @param {string} options.email Optional, new email of user.
+   * @param {string} options.phone_number Optional, new phone number of user.
+   * @param {boolean} options.email_verified Optional, new email verified status of user.
+   * @param {boolean} options.phone_number_verified Optional, new phone number verified status of user.
+   * @returns {object} The updated user object.
+   */
+  async updateUser (userId, options) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if (typeof options !== 'object') {
+      throw new Error('options is required and has to be an object')
+    }
+    if (options.name !== undefined && typeof options.name !== 'string') {
+      throw new Error('options.name has to be a string')
+    }
+    if (options.preferred_username !== undefined && typeof options.preferred_username !== 'string') {
+      throw new Error('options.preferred_username has to be a string')
+    }
+    if (options.email !== undefined && typeof options.email !== 'string') {
+      throw new Error('options.email has to be a string')
+    }
+    if (options.phone_number !== undefined && typeof options.phone_number !== 'string') {
+      throw new Error('options.phoneNumber has to be a string')
+    }
+    if (options.email_verified !== undefined && typeof options.email_verified !== 'boolean') {
+      throw new Error('options.emailVerified has to be a boolean')
+    }
+    if (options.phone_number_verified !== undefined && typeof options.phone_number_verified !== 'boolean') {
+      throw new Error('options.phoneNumberVerified has to be a boolean')
+    }
+    const resp = await this._http(true).put(`${basePath}/users/${userId}`, options)
+    return resp.data
+  }
+
+  /**
+   * Update password of a user specified by user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @param {string} password The new password of user.
+   */
+  async updateUserPassword (userId, password) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if (typeof password !== 'string') {
+      throw new Error('password is required and has to be in string format')
+    }
+    const state = await spake2.createVerifier(password)
+    const req = {
+      salt: state.salt,
+      l: state.verifier.l,
+      w0: state.verifier.w0
+    }
+    await this._http(true).post(`${basePath}/users/${userId}/password`, req)
+  }
+
+  /**
+   * Get roles of a user specified by user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @returns {object} List of user roles.
+   */
+  async getUserRoles (userId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/users/${userId}/roles`)
+    return resp.data
+  }
+
+  /**
+   * Assign a role to a user specified by user ID and role ID.
+   *
+   * @param {number} userId The user's ID.
+   * @param {number} roleId The role's ID.
+   * @returns {object} List of user's new roles.
+   */
+  async assignUserRole (userId, roleId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if (typeof roleId !== 'number') {
+      throw new Error('roleId is required and has to be number format')
+    }
+    const req = {
+      role_id: roleId
+    }
+    const resp = await this._http(true).post(`${basePath}/users/${userId}/roles`, req)
+    return resp.data
+  }
+
+  /**
+   * Unassign a role for a user specified by user ID and role ID.
+   *
+   * @param {number} userId The user's ID.
+   * @param {number} roleId The role's ID.
+   */
+  async unassignUserRole (userId, roleId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if (typeof roleId !== 'number') {
+      throw new Error('roleId is required and has to be number format')
+    }
+    const req = {
+      role_id: roleId
+    }
+    await this._http(true).delete(`${basePath}/users/${userId}/roles`, req)
+  }
+
+  /**
+   * List IDP of a user specified by user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @returns {object} List of user's IDP.
+   */
+  async listUserIDP (userId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/users/${userId}/idp`)
+    return resp.data
+  }
+
+  /**
+   * Delete a IDP of an user specified by user ID and service.
+   *
+   * @param {number} userId The user's ID.
+   * @param {strint} service A IDP service name to be deleted.
+   */
+  async deleteUserIDP (userId, service) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    if (typeof service !== 'string') {
+      throw new Error('service is required and has to be in string format')
+    }
+    await this._http(true).delete(`${basePath}/users/${userId}/idp/${service}`)
+  }
+
+  /**
+   * List MFA of a user specified by user ID.
+   *
+   * @param {number} userId The user's ID.
+   * @returns {object} List of user's MFA.
+   */
+  async listUserMFA (userId) {
+    if (typeof userId !== 'number') {
+      throw new Error('userId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/users/${userId}/mfa`)
+    return resp.data
+  }
+
+  /**
+   * Create a new user with identifier such as email or phone number.
+   *
+   * @param {object} data A object contains the following data.
+   * @param {string} data.username Optional, Username of the user to be created.
+   * @param {string} data.email Optional, Email of the user to be created.
+   * @param {string} data.phone_number Optional, Phone number of the user to be created.
+   * @returns {object} User object and the refresh token of the user.
+   */
+  async createUser (data) {
+    if (typeof data !== 'object') {
+      throw new Error('data is required and has to be an object')
+    }
+    if (data.username !== undefined || typeof data.username !== 'string') {
+      throw new Error('data.username has to be a string')
+    }
+    if (data.email !== undefined || typeof data.email !== 'string') {
+      throw new Error('data.email has to be a string')
+    }
+    if (data.phone_number !== undefined || typeof data.phone_number !== 'string') {
+      throw new Error('data.phone_number has to be a string')
+    }
+    const resp = await this._http(true).post(`${basePath}/users`, data)
+    return resp.data
+  }
+
+  /**
+   * Get an IDP specified by IDP ID.
+   *
+   * @param {number} idpId The IDP's ID.
+   * @returns {object} An IDP object.
+   */
+  async getIDP (idpId) {
+    if (typeof idpId !== 'number') {
+      throw new Error('idpId is required and has to be number format')
+    }
+    const resp = await this._http(true).get(`${basePath}/idp/${idpId}`)
+    return resp.data
   }
 
   _http (authenticated) {

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import spake2 from '../crypto/spake2.js'
 
 const basePath = '/api/v2'
 
@@ -400,22 +399,22 @@ class Client {
    *
    * @param {number} userId The user's ID.
    * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
-   * @param {number} rowsPerPage The number of events returns in a page.
+   * @param {number} limit The number of events returns in a page.
    * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
    */
-  async listUserEvents (userId, pageToken, rowsPerPage) {
+  async listUserEvents (userId, pageToken, limit) {
     if (typeof userId !== 'number') {
       throw new Error('userId has to be number format')
     }
     if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
       throw new Error('pageToken has to be in string format')
     }
-    const params = new URLSearchParams()
-    params.append('user_id', userId)
-    params.append('limit', rowsPerPage)
-    params.append('page_token', pageToken)
-    const url = new URL(basePath + '/audit_logs?' + params.toString(), this.authcore.baseURL)
-    const resp = await this._http(true).get(url.toString())
+    const params = {
+      user_id: userId,
+      limit: limit,
+      page_token: pageToken
+    }
+    const resp = await this._http(true).get(`${basePath}/audit_logs`, { params })
     return resp.data
   }
 
@@ -423,18 +422,18 @@ class Client {
    * List all events logs.
    *
    * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
-   * @param {number} rowsPerPage The number of events returns in a page.
+   * @param {number} limit The number of events returns in a page.
    * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
    */
-  async listEvents (pageToken, rowsPerPage) {
+  async listEvents (pageToken, limit) {
     if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
       throw new Error('pageToken has to be in string format')
     }
-    const params = new URLSearchParams()
-    params.append('limit', rowsPerPage)
-    params.append('page_token', pageToken)
-    const url = new URL(basePath + '/audit_logs?' + params.toString(), this.authcore.baseURL)
-    const resp = await this._http(true).get(url.toString())
+    const params = {
+      limit: limit,
+      page_token: pageToken
+    }
+    const resp = await this._http(true).get(`${basePath}/audit_logs`, { params })
     return resp.data
   }
 
@@ -443,21 +442,21 @@ class Client {
    *
    * @param {number} userId The user's ID.
    * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
-   * @param {number} rowsPerPage The number of events returns in a page.
+   * @param {number} limit The number of events returns in a page.
    * @returns {object} Result including the sessions list, page token for previous and next page and number of total items.
    */
-  async listUserSessions (userId, pageToken, rowsPerPage) {
+  async listUserSessions (userId, pageToken, limit) {
     if (typeof userId !== 'number') {
       throw new Error('userId is required and has to be number format')
     }
     if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
       throw new Error('pageToken has to be in string format')
     }
-    const params = new URLSearchParams()
-    params.append('limit', rowsPerPage)
-    params.append('page_token', pageToken)
-    const url = `${basePath}/users/${userId}/sessions?${params.toString()}`
-    const resp = await this._http(true).get(url)
+    const params = {
+      limit: limit,
+      page_token: pageToken
+    }
+    const resp = await this._http(true).get(`${basePath}/users/${userId}/sessions`, { params })
     return resp.data
   }
 
@@ -566,7 +565,7 @@ class Client {
     if (!newTemplate.text || typeof newTemplate.text !== 'string') {
       throw new Error('newTemplate.text is required and must be a string')
     }
-    await this._http(true).put(`${basePath}/templates/${type}/${language}/${templateName}`, newTemplate)
+    await this._http(true).post(`${basePath}/templates/${type}/${language}/${templateName}`, newTemplate)
   }
 
   /**
@@ -594,10 +593,9 @@ class Client {
   /**
    * List users.
    *
-   * @param {number} rowsPerPage Number of users return in a page.
    * @param {string} pageToken The page token for the page result. If it is empty it returns the first page.
-   * @param {boolean} ascending Boolean specify whether results is sorted ascending or not. If it is true result is sorted in ascending order.
-   * @param {string} sortKey Optional, key used to sort results.
+   * @param {number} limit Number of users return in a page.
+   * @param {string} sortBy Optional, sort string used to sort results.
    * @param {object} options Object for the following query parameters.
    * @param {string} options.email Optional, email used to filter results.
    * @param {string} options.phoneNumber Optional, phone number used to filter results.
@@ -605,26 +603,21 @@ class Client {
    * @param {string} options.preferredUsername Optional, preferred username used to filter results.
    * @returns {object} Result includes the users list, page token for previous and next page and number of total items.
    */
-  async listUsers (rowsPerPage, pageToken, ascending, sortKey = '', options = {}) {
-    let sortBy = ''
-    if (sortKey) {
-      const asc = ascending ? 'asc' : 'desc'
-      sortBy = `${sortKey} ${asc}`
-    }
+  async listUsers (pageToken, limit, sortBy = '', options = {}) {
     if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
       throw new Error('pageToken has to be in string format')
     }
 
-    const params = new URLSearchParams()
-    params.append('limit', rowsPerPage)
-    params.append('page_token', pageToken)
-    params.append('sort_by', sortBy)
-    params.append('email', email)
-    params.append('phone_number', phoneNumber)
-    params.append('name', name)
-    params.append('preferred_username', preferredUsername)
-    const url = `${basePath}/users?${params.toString()}`
-    const resp = await this._http(true).get(url)
+    const params = {
+      limit: limit,
+      page_token: pageToken,
+      sort_by: sortBy,
+      email: options.email,
+      phone_number: options.phoneNumber,
+      name: options.name,
+      preferred_username: options.preferredUsername
+    }
+    const resp = await this._http(true).get(`${basePath}/users`, { params })
     return resp.data
   }
 
@@ -658,41 +651,43 @@ class Client {
    * Update a user specified by user ID and updated fields.
    *
    * @param {number} userId The user's ID.
-   * @param {object} options An object contains the following parameters.
-   * @param {string} options.name Optional, new name of user.
-   * @param {string} options.preferred_username Optional, new preferred username of user.
-   * @param {string} options.email Optional, new email of user.
-   * @param {string} options.phone_number Optional, new phone number of user.
-   * @param {boolean} options.email_verified Optional, new email verified status of user.
-   * @param {boolean} options.phone_number_verified Optional, new phone number verified status of user.
+   * @param {object} user An user object contains the following parameters.
+   * @param {string} user.name Optional, new name of user.
+   * @param {string} user.preferred_username Optional, new preferred username of user.
+   * @param {string} user.email Optional, new email of user.
+   * @param {string} user.phone_number Optional, new phone number of user.
+   * @param {boolean} user.email_verified Optional, new email verified status of user.
+   * @param {boolean} user.phone_number_verified Optional, new phone number verified status of user.
+   * @param {JSON} user.user_metadata Optional, new user metadata of user.
+   * @param {JSON} user.app_metadata Optional, new app metadata of user.
    * @returns {object} The updated user object.
    */
-  async updateUser (userId, options) {
+  async updateUser (userId, user) {
     if (typeof userId !== 'number') {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof options !== 'object') {
-      throw new Error('options is required and has to be an object')
+    if (typeof user !== 'object') {
+      throw new Error('user is required and has to be an object')
     }
-    if (options.name !== undefined && typeof options.name !== 'string') {
-      throw new Error('options.name has to be a string')
+    if (user.name !== undefined && typeof user.name !== 'string') {
+      throw new Error('user.name has to be a string')
     }
-    if (options.preferred_username !== undefined && typeof options.preferred_username !== 'string') {
-      throw new Error('options.preferred_username has to be a string')
+    if (user.preferred_username !== undefined && typeof user.preferred_username !== 'string') {
+      throw new Error('user.preferred_username has to be a string')
     }
-    if (options.email !== undefined && typeof options.email !== 'string') {
-      throw new Error('options.email has to be a string')
+    if (user.email !== undefined && typeof user.email !== 'string') {
+      throw new Error('user.email has to be a string')
     }
-    if (options.phone_number !== undefined && typeof options.phone_number !== 'string') {
-      throw new Error('options.phoneNumber has to be a string')
+    if (user.phone_number !== undefined && typeof user.phone_number !== 'string') {
+      throw new Error('user.phoneNumber has to be a string')
     }
-    if (options.email_verified !== undefined && typeof options.email_verified !== 'boolean') {
-      throw new Error('options.emailVerified has to be a boolean')
+    if (user.email_verified !== undefined && typeof user.email_verified !== 'boolean') {
+      throw new Error('user.emailVerified has to be a boolean')
     }
-    if (options.phone_number_verified !== undefined && typeof options.phone_number_verified !== 'boolean') {
-      throw new Error('options.phoneNumberVerified has to be a boolean')
+    if (user.phone_number_verified !== undefined && typeof user.phone_number_verified !== 'boolean') {
+      throw new Error('user.phoneNumberVerified has to be a boolean')
     }
-    const resp = await this._http(true).put(`${basePath}/users/${userId}`, options)
+    const resp = await this._http(true).put(`${basePath}/users/${userId}`, user)
     return resp.data
   }
 
@@ -700,22 +695,16 @@ class Client {
    * Update password of a user specified by user ID.
    *
    * @param {number} userId The user's ID.
-   * @param {string} password The new password of user.
+   * @param {string} verifier The new password verifier of user.
    */
-  async updateUserPassword (userId, password) {
+  async updateUserPassword (userId, verifier) {
     if (typeof userId !== 'number') {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof password !== 'string') {
-      throw new Error('password is required and has to be in string format')
+    if (typeof verifier !== 'object') {
+      throw new Error('verifier is required and has to be an object')
     }
-    const state = await spake2.createVerifier(password)
-    const req = {
-      salt: state.salt,
-      l: state.verifier.l,
-      w0: state.verifier.w0
-    }
-    await this._http(true).post(`${basePath}/users/${userId}/password`, req)
+    await this._http(true).post(`${basePath}/users/${userId}/password`, verifier)
   }
 
   /**
@@ -790,7 +779,7 @@ class Client {
    * Delete a IDP of an user specified by user ID and service.
    *
    * @param {number} userId The user's ID.
-   * @param {strint} service A IDP service name to be deleted.
+   * @param {string} service A IDP service name to be deleted.
    */
   async deleteUserIDP (userId, service) {
     if (typeof userId !== 'number') {

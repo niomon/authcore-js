@@ -433,6 +433,45 @@ class Client {
     await this._http(true).delete(url)
   }
 
+  /**
+   * List current user sessions.
+   *
+   * @returns {object} Current user's sessions.
+   */
+  async listCurrentUserSessions () {
+    const resp = await this._http(true).get(basePath + '/users/current/sessions')
+    return resp.data
+  }
+
+  /**
+   * Delete current user session.
+   *
+   * @param {number} sessionId A session ID.
+   */
+  async deleteCurrentUserSession (sessionId) {
+    if (typeof sessionId !== 'number') {
+      throw new Error('sessionId is required and has to be number format')
+    }
+    await this._http(true).delete(basePath + '/users/current/sessions/' + sessionId)
+  }
+
+  /**
+   * Get current session.
+   *
+   * @returns {object} Current session.
+   */
+  async getCurrentSession () {
+    const resp = await this._http(true).get(basePath + '/sessions/current')
+    return resp.data
+  }
+
+  /**
+   * Delete current session.
+   */
+  async deleteCurrentSession () {
+    await this._http(true).delete(basePath + '/sessions/current')
+  }
+
   _http (authenticated) {
     const headers = {}
     if (authenticated) {

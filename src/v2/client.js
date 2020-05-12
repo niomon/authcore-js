@@ -305,6 +305,59 @@ class Client {
   }
 
   /**
+   * Start a session step-up transaction.
+   *
+   * @returns {object} An authentication state.
+   */
+  async startStepUp () {
+    const resp = await this._http(true).post(basePath + '/authn/step_up', {})
+    return resp.data
+  }
+
+  /**
+   * Request a password key exchange challenge for a step-up transaction.
+   *
+   * @param {string} stateToken A state token.
+   * @param {Buffer} message A password key exchange message.
+   * @returns {Buffer} A password key exchange challenge message.
+   */
+  async requestPasswordStepUp (stateToken, message) {
+    if (typeof stateToken !== 'string') {
+      throw new Error('stateToken is required')
+    }
+    if (!Buffer.isBuffer(message)) {
+      throw new Error('message must be a buffer')
+    }
+    const resp = await this._http(true).post(basePath + '/authn/step_up/password', {
+      'state_token': stateToken,
+      'message': message.toString('base64')
+    })
+    const challenge = resp.data['challenge']
+    return Buffer.from(challenge, 'base64')
+  }
+
+  /**
+   * Verify password for a step-up transaction.
+   *
+   * @param {string} stateToken A state token.
+   * @param {Buffer} response A password verification response.
+   * @returns {object} An authentication state.
+   */
+  async verifyPasswordStepUp (stateToken, response) {
+    if (typeof stateToken !== 'string') {
+      throw new Error('stateToken is required')
+    }
+    if (!Buffer.isBuffer(response)) {
+      throw new Error('response must be a buffer')
+    }
+    const resp = await this._http(true).post(basePath + '/authn/step_up/password/verify', {
+      'state_token': stateToken,
+      'verifier': response.toString('base64')
+    })
+    return resp.data
+  }
+
+  /**
    * Get a authentication state by state token.
    *
    * @param {string} stateToken A state token.
@@ -366,6 +419,16 @@ class Client {
     }
     Object.assign(req, options)
     const resp = await this._http(false).post('/oauth/token', req)
+    return resp.data
+  }
+
+  /**
+   * Get current user.
+   *
+   * @returns {object} Current user.
+   */
+  async getCurrentUser () {
+    const resp = await this._http(true).get(basePath + '/users/current')
     return resp.data
   }
 
@@ -863,6 +926,18 @@ class Client {
       throw new Error('sessionId is required and has to be number format')
     }
     await this._http(true).delete(basePath + '/users/current/sessions/' + sessionId)
+  }
+
+  /**
+   * Update current user password.
+   *
+   * @param {object} passwordVerifier The password verifier generated from user's password.
+   */
+  async updateCurrentUserPassword (passwordVerifier) {
+    if (typeof passwordVerifier !== 'object') {
+      throw new Error('passwordVerifier must be an object')
+    }
+    await this._http(true).put(basePath + '/users/current/password', passwordVerifier)
   }
 
   /**

@@ -138,6 +138,30 @@ class Authn {
     const verifier = Buffer.from(code)
     return this.authcore.client.verifyMFA(stateToken, 'backup_code', verifier)
   }
+
+  /**
+   * Perform password step-up authentication. This method performs verification handshake if needed.
+   *
+   * @param {string} password A plaintext password.
+   * @returns {object} An authentication state.
+   */
+  async verifyPasswordStepUp (password) {
+    if (typeof password !== 'string') {
+      throw new Error('password is required')
+    }
+
+    const state = await this.authcore.client.startStepUp()
+
+    const stateToken = state['state_token']
+    const salt = Buffer.from(state['password_salt'], 'base64')
+    const ps = await spake2().startClient('authcoreuser', 'authcore', password, salt)
+    const message = ps.getMessage()
+    const challenge = await this.authcore.client.requestPasswordStepUp(stateToken, message)
+
+    const sharedSecret = ps.finish(challenge)
+    const confirmation = sharedSecret.getConfirmation()
+    return this.authcore.client.verifyPasswordStepUp(stateToken, confirmation)
+  }
 }
 
 export default Authn

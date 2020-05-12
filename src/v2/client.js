@@ -721,6 +721,9 @@ class Client {
    * @param {string} user.phone_number Optional, new phone number of user.
    * @param {boolean} user.email_verified Optional, new email verified status of user.
    * @param {boolean} user.phone_number_verified Optional, new phone number verified status of user.
+   * @param {object} user.app_metadata Optional, new application metadata of user.
+   * @param {object} user.user_metadata Optional, new user metadata.
+   * @param {boolean} user.is_locked Optional, new lock state of user.
    * @returns {object} The updated user object.
    */
   async updateUser (userId, user) {
@@ -740,13 +743,22 @@ class Client {
       throw new Error('user.email has to be a string')
     }
     if (user.phone_number !== undefined && typeof user.phone_number !== 'string') {
-      throw new Error('user.phoneNumber has to be a string')
+      throw new Error('user.phone_number has to be a string')
     }
     if (user.email_verified !== undefined && typeof user.email_verified !== 'boolean') {
-      throw new Error('user.emailVerified has to be a boolean')
+      throw new Error('user.email_verified has to be a boolean')
     }
     if (user.phone_number_verified !== undefined && typeof user.phone_number_verified !== 'boolean') {
-      throw new Error('user.phoneNumberVerified has to be a boolean')
+      throw new Error('user.phone_number_verified has to be a boolean')
+    }
+    if (user.app_metadata !== undefined && typeof user.app_metadata !== 'object') {
+      throw new Error('user.app_metadata has to be an object')
+    }
+    if (user.user_metadata !== undefined && typeof user.user_metadata !== 'object') {
+      throw new Error('user.user_metadata has to be an object')
+    }
+    if (user.is_locked !== undefined && typeof user.is_locked !== 'boolean') {
+      throw new Error('user.is_locked has to be a boolean')
     }
     const resp = await this._http(true).put(`${basePath}/users/${userId}`, user)
     return resp.data

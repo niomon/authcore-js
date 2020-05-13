@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { typeChecker } from '../utils/util'
 
 const basePath = '/api/v2'
 
@@ -32,19 +33,19 @@ class Client {
    * @returns {object} An authentication state.
    */
   async start (handle, redirectURI, options = {}) {
-    if (typeof handle !== 'string') {
+    if (!typeChecker(handle, 'string', true)) {
       throw new Error('handle is required')
     }
-    if (typeof redirectURI !== 'string') {
+    if (!typeChecker(redirectURI, 'string', true)) {
       throw new Error('redirectURI is required')
     }
-    if (typeof options !== 'object') {
+    if (!typeChecker(options, 'object', true)) {
       throw new Error('options must be an object')
     }
-    if (options.codeChallengeMethod && typeof options.codeChallengeMethod !== 'string') {
+    if (options.codeChallengeMethod && !typeChecker(options.codeChallengeMethod, 'string', true)) {
       throw new Error('codeChallengeMethod must be a string')
     }
-    if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
+    if (options.codeChallenge && !typeChecker(options.codeChallenge, 'string', true)) {
       throw new Error('codeChallenge must be a string')
     }
     const resp = await this._http(false).post(basePath + '/authn', {
@@ -65,7 +66,7 @@ class Client {
    * @returns {Buffer} A password key exchange challenge message.
    */
   async requestPassword (stateToken, message) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!Buffer.isBuffer(message)) {
@@ -87,7 +88,7 @@ class Client {
    * @returns {object} An authentication state.
    */
   async verifyPassword (stateToken, response) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!Buffer.isBuffer(response)) {
@@ -109,10 +110,10 @@ class Client {
    * @returns {Buffer} A password key exchange challenge message.
    */
   async requestMFA (stateToken, method, message) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
-    if (typeof method !== 'string') {
+    if (!typeChecker(method, 'string', true)) {
       throw new Error('method is required')
     }
     if (!/^\w+$/.test(method)) {
@@ -141,10 +142,10 @@ class Client {
    * @returns {object} An authentication state.
    */
   async verifyMFA (stateToken, method, verifier) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
-    if (typeof method !== 'string') {
+    if (!typeChecker(method, 'string', true)) {
       throw new Error('method is required')
     }
     if (!/^\w+$/.test(method)) {
@@ -172,22 +173,22 @@ class Client {
    * @returns {object} An authentication state.
    */
   async signUp (redirectURI, user) {
-    if (typeof redirectURI !== 'string') {
+    if (!typeChecker(redirectURI, 'string', true)) {
       throw new Error('redirectURI is required')
     }
-    if (typeof user !== 'object') {
+    if (!typeChecker(user, 'object')) {
       throw new Error('user must be an object')
     }
-    if (user.email && typeof user.email !== 'string') {
+    if (user.email && !typeChecker(user.email, 'string')) {
       throw new Error('user.email must be a string')
     }
-    if (user.phone && typeof user.phone !== 'string') {
+    if (user.phone && !typeChecker(user.phone, 'string')) {
       throw new Error('user.phone must be a string')
     }
-    if (user.name && typeof user.name !== 'string') {
+    if (user.name && !typeChecker(user.name, 'string')) {
       throw new Error('user.name must be a string')
     }
-    if (typeof user.password_verifier !== 'object') {
+    if (!typeChecker(user.password_verifier, 'object')) {
       throw new Error('user.password_verifier must be an object')
     }
     const resp = await this._http(false).post(basePath + '/signup', {
@@ -212,22 +213,22 @@ class Client {
    * @returns {object} An authentication state.
    */
   async startIDP (idp, redirectURI, options = {}) {
-    if (typeof idp !== 'string') {
+    if (!typeChecker(idp, 'string', true)) {
       throw new Error('idp is required')
     }
     if (!/^\w+$/.test(idp)) {
       throw new Error('invalid idp')
     }
-    if (typeof redirectURI !== 'string') {
+    if (!typeChecker(redirectURI, 'string', true)) {
       throw new Error('redirectURI is required')
     }
-    if (typeof options !== 'object') {
+    if (!typeChecker(options, 'object')) {
       throw new Error('options must be an object')
     }
-    if (options.codeChallengeMethod && typeof options.codeChallengeMethod !== 'string') {
+    if (options.codeChallengeMethod && !typeChecker(options.codeChallengeMethod, 'string', true)) {
       throw new Error('codeChallengeMethod must be a string')
     }
-    if (options.codeChallenge && typeof options.codeChallenge !== 'string') {
+    if (options.codeChallenge && !typeChecker(options.codeChallenge, 'string', true)) {
       throw new Error('codeChallenge must be a string')
     }
     const resp = await this._http(false).post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
@@ -247,10 +248,10 @@ class Client {
    * @returns {object} An authentication state.
    */
   async verifyIDP (stateToken, code) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
-    if (typeof code !== 'string') {
+    if (!typeChecker(code, 'string')) {
       throw new Error('code is required')
     }
     const resp = await this._http(false).post(basePath + '/authn/idp/-/verify', {
@@ -268,14 +269,14 @@ class Client {
    * @returns {object} An authentication state.
    */
   async startIDPBinding (idp, redirectURI) {
-    if (typeof idp !== 'string') {
+    if (!typeChecker(idp, 'string', true)) {
       throw new Error('idp is required')
     }
     if (!/^\w+$/.test(idp)) {
       throw new Error('invalid idp')
     }
-    if (typeof idp !== 'string') {
-      throw new Error('idp is required')
+    if (!typeChecker(redirectURI, 'string', true)) {
+      throw new Error('redirectURI is required')
     }
     const resp = await this._http(true).post(basePath + '/authn/idp_binding/' + encodeURIComponent(idp), {
       'redirect_uri': redirectURI
@@ -291,10 +292,10 @@ class Client {
    * @returns {object} An authentication state.
    */
   async verifyIDPBinding (stateToken, code) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string')) {
       throw new Error('stateToken is required')
     }
-    if (typeof code !== 'string') {
+    if (!typeChecker(code, 'string')) {
       throw new Error('code is required')
     }
     const resp = await this._http(true).post(basePath + '/authn/idp_binding/-/verify', {
@@ -322,7 +323,7 @@ class Client {
    * @returns {Buffer} A password key exchange challenge message.
    */
   async requestPasswordStepUp (stateToken, message) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!Buffer.isBuffer(message)) {
@@ -344,7 +345,7 @@ class Client {
    * @returns {object} An authentication state.
    */
   async verifyPasswordStepUp (stateToken, response) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!Buffer.isBuffer(response)) {
@@ -364,7 +365,7 @@ class Client {
    * @returns {object} An authentication state.
    */
   async getAuthnState (stateToken) {
-    if (typeof stateToken !== 'string') {
+    if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     const resp = await this._http(true).post(basePath + '/authn/get_state', {
@@ -375,13 +376,13 @@ class Client {
 
   // Returns a URL to Authcore's OAuth 2.0 sign in page.
   authCodeURL (state, redirectURI, options = {}) {
-    if (typeof state !== 'string') {
+    if (!typeChecker(state, 'string', true)) {
       throw new Error('state is required')
     }
-    if (typeof redirectURI !== 'string') {
+    if (!typeChecker(redirectURI, 'string', true)) {
       throw new Error('redirectURI is required')
     }
-    if (typeof options !== 'object') {
+    if (!typeChecker(options, 'object')) {
       throw new Error('options must be an object')
     }
     const params = new URLSearchParams()
@@ -402,13 +403,13 @@ class Client {
    * @returns {object} An object containing access token.
    */
   async exchange (type, token, options = {}) {
-    if (typeof type !== 'string') {
+    if (!typeChecker(type, 'string', true)) {
       throw new Error('type is required')
     }
-    if (typeof token !== 'string') {
+    if (!typeChecker(token, 'string', true)) {
       throw new Error('token is required')
     }
-    if (typeof options !== 'object') {
+    if (!typeChecker(options, 'object')) {
       throw new Error('options must be an object')
     }
     const tokenParam = type === 'refresh_token' ? 'refresh_token' : 'code'
@@ -448,7 +449,7 @@ class Client {
    * @param {string} idp An IDP name.
    */
   async deleteCurrentUserIDP (idp) {
-    if (typeof idp !== 'string') {
+    if (!typeChecker(idp, 'string', true)) {
       throw new Error('idp is required')
     }
     if (!/^\w+$/.test(idp)) {
@@ -466,10 +467,10 @@ class Client {
    * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
    */
   async listUserEvents (userId, pageToken, limit) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number')) {
       throw new Error('userId has to be number format')
     }
-    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+    if (!typeChecker(pageToken, 'string')) {
       throw new Error('pageToken has to be in string format')
     }
     const params = {
@@ -489,7 +490,7 @@ class Client {
    * @returns {object} Result including the event logs list, page token for previous and next page and number of total items.
    */
   async listEvents (pageToken, limit) {
-    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+    if (!typeChecker(pageToken, 'string')) {
       throw new Error('pageToken has to be in string format')
     }
     const params = {
@@ -509,10 +510,10 @@ class Client {
    * @returns {object} Result including the sessions list, page token for previous and next page and number of total items.
    */
   async listUserSessions (userId, pageToken, limit) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number')) {
       throw new Error('userId is required and has to be number format')
     }
-    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+    if (!typeChecker(pageToken, 'string')) {
       throw new Error('pageToken has to be in string format')
     }
     const params = {
@@ -530,7 +531,7 @@ class Client {
    * @returns {object} A session object.
    */
   async getSession (sessionId) {
-    if (typeof sessionId !== 'number') {
+    if (!typeChecker(sessionId, 'number')) {
       throw new Error('sessionId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/sessions/${sessionId}`)
@@ -543,7 +544,7 @@ class Client {
    * @param {number} sessionId The session's ID.
    */
   async deleteSession (sessionId) {
-    if (typeof sessionId !== 'number') {
+    if (!typeChecker(sessionId, 'number')) {
       throw new Error('sessionId is required and has to be number format')
     }
     await this._http(true).delete(`${basePath}/sessions/${sessionId}`)
@@ -570,7 +571,7 @@ class Client {
     if (type !== 'email' && type !== 'sms') {
       throw new Error('type is not email or sms')
     }
-    if (typeof language !== 'string') {
+    if (!typeChecker(language, 'string')) {
       throw new Error('language has to be in string format')
     }
     const resp = await this._http(true).get(`${basePath}/templates/${type}/${language}`)
@@ -589,10 +590,10 @@ class Client {
     if (type !== 'email' && type !== 'sms') {
       throw new Error('type is not email or sms')
     }
-    if (typeof language !== 'string') {
+    if (!typeChecker(language, 'string')) {
       throw new Error('language has to be in string format')
     }
-    if (typeof templateName !== 'string') {
+    if (!typeChecker(templateName, 'string')) {
       throw new Error('templateName has to be in string format')
     }
     const resp = await this._http(true).get(`${basePath}/templates/${type}/${language}/${templateName}`)
@@ -611,21 +612,21 @@ class Client {
     if (type !== 'email' && type !== 'sms') {
       throw new Error('type is not email or sms')
     }
-    if (typeof language !== 'string') {
-      throw new Error('language has to be in string format')
+    if (!language || !typeChecker(language, 'string')) {
+      throw new Error('language has to be in non-empty string format')
     }
-    if (typeof templateName !== 'string') {
-      throw new Error('templateName has to be in string format')
+    if (!templateName || !typeChecker(templateName, 'string')) {
+      throw new Error('templateName has to be in non-empty string format')
     }
     if (type === 'email') {
-      if (!newTemplate.subject || typeof newTemplate.subject !== 'string') {
+      if (!typeChecker(newTemplate.subject, 'string', true)) {
         throw new Error('newTemplate.subject is required and must be a string')
       }
-      if (!newTemplate.html || typeof newTemplate.html !== 'string') {
+      if (!typeChecker(newTemplate.html, 'string', true)) {
         throw new Error('newTemplate.html is required and must be a string')
       }
     }
-    if (!newTemplate.text || typeof newTemplate.text !== 'string') {
+    if (!typeChecker(newTemplate.text, 'string', true)) {
       throw new Error('newTemplate.text is required and must be a string')
     }
     await this._http(true).post(`${basePath}/templates/${type}/${language}/${templateName}`, newTemplate)
@@ -637,16 +638,16 @@ class Client {
    * @param {string} type Template type ('email'/'sms').
    * @param {string} language Language string.
    * @param {string} templateName Template name.
-   * @returns {object} A template object.
+   * @returns {boolean} Status represents the action success or not.
    */
   async resetTemplate (type, language, templateName) {
     if (type !== 'email' && type !== 'sms') {
       throw new Error('type is not email or sms')
     }
-    if (typeof language !== 'string') {
+    if (!language || !typeChecker(language, 'string')) {
       throw new Error('language has to be in string format')
     }
-    if (typeof templateName !== 'string') {
+    if (!templateName || !typeChecker(templateName, 'string')) {
       throw new Error('templateName has to be in string format')
     }
     const resp = await this._http(true).delete(`${basePath}/templates/${type}/${language}/${templateName}`)
@@ -667,7 +668,7 @@ class Client {
    * @returns {object} Result includes the users list, page token for previous and next page and number of total items.
    */
   async listUsers (pageToken, limit, sortBy = '', options = {}) {
-    if ((pageToken !== undefined && pageToken !== null) && typeof pageToken !== 'string') {
+    if (!typeChecker(pageToken, 'string')) {
       throw new Error('pageToken has to be in string format')
     }
 
@@ -691,7 +692,7 @@ class Client {
    * @returns {object} A user object.
    */
   async getUser (userId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/users/${userId}`)
@@ -704,7 +705,7 @@ class Client {
    * @param {number} userId The user's ID.
    */
   async deleteUser (userId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
     await this._http(true).delete(`${basePath}/users/${userId}`)
@@ -727,37 +728,37 @@ class Client {
    * @returns {object} The updated user object.
    */
   async updateUser (userId, user) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number')) {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof user !== 'object') {
+    if (!typeChecker(user, 'object')) {
       throw new Error('user is required and has to be an object')
     }
-    if (user.name !== undefined && typeof user.name !== 'string') {
+    if (!typeChecker(user.name, 'string')) {
       throw new Error('user.name has to be a string')
     }
-    if (user.preferred_username !== undefined && typeof user.preferred_username !== 'string') {
+    if (!typeChecker(user.preferred_username, 'string')) {
       throw new Error('user.preferred_username has to be a string')
     }
-    if (user.email !== undefined && typeof user.email !== 'string') {
+    if (!typeChecker(user.email, 'string')) {
       throw new Error('user.email has to be a string')
     }
-    if (user.phone_number !== undefined && typeof user.phone_number !== 'string') {
+    if (!typeChecker(user.phone_number, 'string')) {
       throw new Error('user.phone_number has to be a string')
     }
-    if (user.email_verified !== undefined && typeof user.email_verified !== 'boolean') {
+    if (!typeChecker(user.email_verified, 'boolean')) {
       throw new Error('user.email_verified has to be a boolean')
     }
-    if (user.phone_number_verified !== undefined && typeof user.phone_number_verified !== 'boolean') {
+    if (!typeChecker(user.phone_number_verified, 'boolean')) {
       throw new Error('user.phone_number_verified has to be a boolean')
     }
-    if (user.app_metadata !== undefined && typeof user.app_metadata !== 'object') {
+    if (!typeChecker(user.app_metadata, 'object')) {
       throw new Error('user.app_metadata has to be an object')
     }
-    if (user.user_metadata !== undefined && typeof user.user_metadata !== 'object') {
+    if (!typeChecker(user.user_metadata, 'object')) {
       throw new Error('user.user_metadata has to be an object')
     }
-    if (user.is_locked !== undefined && typeof user.is_locked !== 'boolean') {
+    if (!typeChecker(user.is_locked, 'boolean')) {
       throw new Error('user.is_locked has to be a boolean')
     }
     const resp = await this._http(true).put(`${basePath}/users/${userId}`, user)
@@ -771,10 +772,10 @@ class Client {
    * @param {string} verifier The new password verifier of user.
    */
   async updateUserPassword (userId, verifier) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof verifier !== 'object') {
+    if (!typeChecker(verifier, 'object', true)) {
       throw new Error('verifier is required and has to be an object')
     }
     await this._http(true).post(`${basePath}/users/${userId}/password`, verifier)
@@ -787,7 +788,7 @@ class Client {
    * @returns {object} List of user roles.
    */
   async getUserRoles (userId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/users/${userId}/roles`)
@@ -802,10 +803,10 @@ class Client {
    * @returns {object} List of user's new roles.
    */
   async assignUserRole (userId, roleId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof roleId !== 'number') {
+    if (!typeChecker(roleId, 'number', true)) {
       throw new Error('roleId is required and has to be number format')
     }
     const req = {
@@ -822,10 +823,10 @@ class Client {
    * @param {number} roleId The role's ID.
    */
   async unassignUserRole (userId, roleId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof roleId !== 'number') {
+    if (!typeChecker(roleId, 'number', true)) {
       throw new Error('roleId is required and has to be number format')
     }
     const req = {
@@ -841,7 +842,7 @@ class Client {
    * @returns {object} List of user's IDP.
    */
   async listUserIDP (userId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/users/${userId}/idp`)
@@ -855,10 +856,10 @@ class Client {
    * @param {string} service A IDP service name to be deleted.
    */
   async deleteUserIDP (userId, service) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (typeof service !== 'string') {
+    if (!typeChecker(service, 'string', true)) {
       throw new Error('service is required and has to be in string format')
     }
     await this._http(true).delete(`${basePath}/users/${userId}/idp/${service}`)
@@ -871,7 +872,7 @@ class Client {
    * @returns {object} List of user's MFA.
    */
   async listUserMFA (userId) {
-    if (typeof userId !== 'number') {
+    if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/users/${userId}/mfa`)
@@ -888,16 +889,16 @@ class Client {
    * @returns {object} User object and the refresh token of the user.
    */
   async createUser (data) {
-    if (typeof data !== 'object') {
+    if (!typeChecker(data, 'object')) {
       throw new Error('data is required and has to be an object')
     }
-    if (data.username !== undefined || typeof data.username !== 'string') {
+    if (!typeChecker(data.username, 'string')) {
       throw new Error('data.username has to be a string')
     }
-    if (data.email !== undefined || typeof data.email !== 'string') {
+    if (!typeChecker(data.email, 'string')) {
       throw new Error('data.email has to be a string')
     }
-    if (data.phone_number !== undefined || typeof data.phone_number !== 'string') {
+    if (!typeChecker(data.phone_number, 'string')) {
       throw new Error('data.phone_number has to be a string')
     }
     const resp = await this._http(true).post(`${basePath}/users`, data)
@@ -911,7 +912,7 @@ class Client {
    * @returns {object} An IDP object.
    */
   async getIDP (idpId) {
-    if (typeof idpId !== 'number') {
+    if (!typeChecker(idpId, 'number', true)) {
       throw new Error('idpId is required and has to be number format')
     }
     const resp = await this._http(true).get(`${basePath}/idp/${idpId}`)
@@ -934,7 +935,7 @@ class Client {
    * @param {number} sessionId A session ID.
    */
   async deleteCurrentUserSession (sessionId) {
-    if (typeof sessionId !== 'number') {
+    if (!typeChecker(sessionId, 'number', true)) {
       throw new Error('sessionId is required and has to be number format')
     }
     await this._http(true).delete(basePath + '/users/current/sessions/' + sessionId)
@@ -946,7 +947,7 @@ class Client {
    * @param {object} passwordVerifier The password verifier generated from user's password.
    */
   async updateCurrentUserPassword (passwordVerifier) {
-    if (typeof passwordVerifier !== 'object') {
+    if (!typeChecker(passwordVerifier, 'object')) {
       throw new Error('passwordVerifier must be an object')
     }
     await this._http(true).put(basePath + '/users/current/password', passwordVerifier)

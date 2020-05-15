@@ -30,6 +30,7 @@ class Client {
    * @param {object} options The options specific for this request.
    * @param {string} options.codeChallenge A PKCE challenge.
    * @param {string} options.codeChallengeMethod A PKCE challenge method.
+   * @param {string} options.clientState A state from OAuth client.
    * @returns {object} An authentication state.
    */
   async start (handle, redirectURI, options = {}) {
@@ -42,18 +43,22 @@ class Client {
     if (!typeChecker(options, 'object', true)) {
       throw new Error('options must be an object')
     }
-    if (options.codeChallengeMethod && !typeChecker(options.codeChallengeMethod, 'string', true)) {
+    if (!typeChecker(options.codeChallengeMethod, 'string')) {
       throw new Error('codeChallengeMethod must be a string')
     }
-    if (options.codeChallenge && !typeChecker(options.codeChallenge, 'string', true)) {
+    if (!typeChecker(options.codeChallenge, 'string')) {
       throw new Error('codeChallenge must be a string')
+    }
+    if (!typeChecker(options.clientState, 'string')) {
+      throw new Error('clientState must be a string')
     }
     const resp = await this._http(false).post(basePath + '/authn', {
       'client_id': this.authcore.clientId,
       'handle': handle,
       'redirect_uri': redirectURI,
       'code_challenge_method': options.codeChallengeMethod,
-      'code_challenge': options.codeChallenge
+      'code_challenge': options.codeChallenge,
+      'client_state': options.clientState
     })
     return resp.data
   }
@@ -210,6 +215,7 @@ class Client {
    * @param {object} options The options specific for this request.
    * @param {string} options.codeChallenge A PKCE challenge.
    * @param {string} options.codeChallengeMethod A PKCE challenge method.
+   * @param {string} options.clientState A state from OAuth client.
    * @returns {object} An authentication state.
    */
   async startIDP (idp, redirectURI, options = {}) {
@@ -225,17 +231,21 @@ class Client {
     if (!typeChecker(options, 'object')) {
       throw new Error('options must be an object')
     }
-    if (options.codeChallengeMethod && !typeChecker(options.codeChallengeMethod, 'string', true)) {
+    if (!typeChecker(options.codeChallengeMethod, 'string')) {
       throw new Error('codeChallengeMethod must be a string')
     }
-    if (options.codeChallenge && !typeChecker(options.codeChallenge, 'string', true)) {
+    if (!typeChecker(options.codeChallenge, 'string')) {
       throw new Error('codeChallenge must be a string')
+    }
+    if (!typeChecker(options.clientState, 'string')) {
+      throw new Error('clientState must be a string')
     }
     const resp = await this._http(false).post(basePath + '/authn/idp/' + encodeURIComponent(idp), {
       'client_id': this.authcore.clientId,
       'redirect_uri': redirectURI,
       'code_challenge_method': options.codeChallengeMethod,
-      'code_challenge': options.codeChallenge
+      'code_challenge': options.codeChallenge,
+      'client_state': options.clientState
     })
     return resp.data
   }

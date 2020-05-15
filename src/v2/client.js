@@ -661,6 +661,7 @@ class Client {
    * @param {number} limit Number of users return in a page.
    * @param {string} sortBy Optional, sort string used to sort results.
    * @param {object} options Object for the following query parameters.
+   * @param {string} options.search Optional, search string for email / phoneNumber / name / username.
    * @param {string} options.email Optional, email used to filter results.
    * @param {string} options.phoneNumber Optional, phone number used to filter results.
    * @param {string} options.name Optional, name used to filter results.
@@ -676,6 +677,7 @@ class Client {
       limit: limit,
       page_token: pageToken,
       sort_by: sortBy,
+      search: options.search,
       email: options.email,
       phone_number: options.phoneNumber,
       name: options.name,

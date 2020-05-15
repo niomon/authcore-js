@@ -898,10 +898,11 @@ class Client {
    * @param {string} data.username Optional, Username of the user to be created.
    * @param {string} data.email Optional, Email of the user to be created.
    * @param {string} data.phone_number Optional, Phone number of the user to be created.
+   * @param {object} data.verifier Optional, password verifier of the user to be created.
    * @returns {object} User object and the refresh token of the user.
    */
   async createUser (data) {
-    if (!typeChecker(data, 'object')) {
+    if (!typeChecker(data, 'object', true)) {
       throw new Error('data is required and has to be an object')
     }
     if (!typeChecker(data.username, 'string')) {
@@ -912,6 +913,9 @@ class Client {
     }
     if (!typeChecker(data.phone_number, 'string')) {
       throw new Error('data.phone_number has to be a string')
+    }
+    if (!typeChecker(data.verifier, 'object')) {
+      throw new Error('data.verifier is required and has to be an object')
     }
     const resp = await this._http(true).post(`${basePath}/users`, data)
     return resp.data

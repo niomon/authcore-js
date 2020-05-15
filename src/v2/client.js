@@ -880,6 +880,54 @@ class Client {
   }
 
   /**
+   * List current user's MFA.
+   *
+   * @returns {object} List of user's MFA.
+   */
+  async listCurrentUserMFA () {
+    const resp = await this._http(true).get(`${basePath}/users/current/mfa`)
+    return resp.data
+  }
+
+  /**
+   * Register a MFA factor for current user.
+   *
+   * @param {object} req A request to create MFA factor.
+   * @param {string} req.type Type of the MFA factor.
+   * @param {string} req.secret Secret of the MFA factor.
+   * @param {string} req.verifier Verifier to confirm the MFA factor.
+   * @returns {object} List of user's MFA.
+   */
+  async createCurrentUserMFA (req) {
+    if (!typeChecker(req, 'object', true)) {
+      throw new Error('req must be an object')
+    }
+    if (!typeChecker(req.type, 'string', true)) {
+      throw new Error('req.type is required')
+    }
+    if (!typeChecker(req.secret, 'string', true)) {
+      throw new Error('req.secret is required')
+    }
+    if (!typeChecker(req.verifier, 'string', true)) {
+      throw new Error('req.verifier is required')
+    }
+    const resp = await this._http(true).post(`${basePath}/users/current/mfa`, req)
+    return resp.data
+  }
+
+  /**
+   * Delete a current user's MFA factor.
+   *
+   * @param {number} id The MFA factor's ID.
+   */
+  async deleteCurrentUserMFA (id) {
+    if (!typeChecker(id, 'number', true)) {
+      throw new Error('id is required and has to be number format')
+    }
+    await this._http(true).delete(`${basePath}/users/current/mfa/${id}`)
+  }
+
+  /**
    * Create a new user with identifier such as email or phone number.
    *
    * @param {object} data A object contains the following data.

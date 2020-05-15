@@ -1,4 +1,5 @@
 import { createVerifier } from '../crypto/spake2.js'
+import { randomTOTPSecret } from '../crypto/random.js'
 
 /**
  * Provide utility methods.
@@ -23,6 +24,15 @@ class Utils {
       w0: v.verifier.w0,
       l: v.verifier.L
     }
+  }
+
+  /**
+   * Create a new TOTP secret.
+   *
+   * @returns {string} A random TOTP secret.
+   */
+  generateTOTPSecret () {
+    return randomTOTPSecret().toString('utf-8')
   }
 }
 

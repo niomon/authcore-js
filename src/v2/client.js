@@ -892,6 +892,18 @@ class Client {
   }
 
   /**
+   * Delete a MFA specified by its ID.
+   *
+   * @param {*} id The ID of MFA.
+   */
+  async deleteMFA (id) {
+    if (!typeChecker(id, 'number', true)) {
+      throw new Error('id is required and has to be number format')
+    }
+    await this._http(true).delete(`${basePath}/mfa/${id}`)
+  }
+
+  /**
    * List current user's MFA.
    *
    * @returns {object} List of user's MFA.

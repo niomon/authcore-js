@@ -841,10 +841,7 @@ class Client {
     if (!typeChecker(roleId, 'number', true)) {
       throw new Error('roleId is required and has to be number format')
     }
-    const req = {
-      role_id: roleId
-    }
-    await this._http(true).delete(`${basePath}/users/${userId}/roles`, req)
+    await this._http(true).delete(`${basePath}/users/${userId}/roles/${roleId}`)
   }
 
   /**

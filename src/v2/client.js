@@ -369,6 +369,51 @@ class Client {
   }
 
   /**
+   * Start a password reset transaction.
+   *
+   * @param {string} handle User's email or phone number.
+   * @returns {object} An authentication state.
+   */
+  async startPasswordReset (handle) {
+    if (!typeChecker(handle, 'string', true)) {
+      throw new Error('handle is required')
+    }
+
+    const resp = await this._http(true).post(basePath + '/authn/password_reset', {
+      'client_id': this.authcore.clientId,
+      'handle': handle
+    })
+    return resp.data
+  }
+
+  /**
+   * Verify the reset token and complete the password reset transaction.
+   *
+   * @param {*} stateToken A state token.
+   * @param {*} resetToken A reset token.
+   * @param {object} passwordVerifier The password verifier generated from user's password.
+   * @returns {object} An authentication state.
+   */
+  async verifyPasswordReset (stateToken, resetToken, passwordVerifier) {
+    if (!typeChecker(stateToken, 'string', true)) {
+      throw new Error('stateToken is required')
+    }
+    if (!typeChecker(resetToken, 'string', true)) {
+      throw new Error('resetToken is required')
+    }
+    if (!typeChecker(passwordVerifier, 'object')) {
+      throw new Error('passwordVerifier must be an object')
+    }
+
+    const resp = await this._http(true).post(basePath + '/authn/password_reset/verify', {
+      'state_token': stateToken,
+      'reset_token': resetToken,
+      'password_verifier': passwordVerifier
+    })
+    return resp.data
+  }
+
+  /**
    * Get a authentication state by state token.
    *
    * @param {string} stateToken A state token.

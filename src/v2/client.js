@@ -1088,6 +1088,12 @@ class Client {
     await this._http(true).delete(basePath + '/sessions/current')
   }
 
+  async generatePass () {
+    const resp = await this._http(true).post(basePath + '/users/current/mfa/pass/register')
+    return resp.data
+  }
+
+
   _http (authenticated) {
     const headers = {}
     if (authenticated) {

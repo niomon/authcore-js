@@ -95,6 +95,40 @@ class Authn {
     return this.authcore.client.verifyMFA(stateToken, 'sms_otp', verifier)
   }
 
+  async requestPass (state) {
+    if (typeof state !== 'object') {
+      throw new Error('state is required')
+    }
+    if (typeof state['state_token'] !== 'string') {
+      throw new Error('state_token is undefined')
+    }
+    const stateToken = state['state_token']
+    const message = Buffer.alloc(0)
+    console.log('requestPass')
+    return this.authcore.client.requestMFA(stateToken, 'pass', message)
+  }
+
+  async verifyPass (state, code) {
+    if (typeof state !== 'object') {
+      throw new Error('state is required')
+    }
+    if (typeof state['state_token'] !== 'string') {
+      throw new Error('state_token is undefined')
+    }
+    if (typeof code !== 'object') {
+      throw new Error('code is required')
+    }
+    if (typeof code.type !== 'string') {
+      throw new Error('code.type is required')
+    }
+    if (typeof code.message !== 'string' && typeof code.code !== 'string') {
+      throw new Error('code.message / code.code is required')
+    }
+    const stateToken = state['state_token']
+    const verifier = Buffer.from(JSON.stringify(code))
+    return this.authcore.client.verifyMFA(stateToken, 'pass', verifier)
+  }
+
   /**
    * Verify a TOTP factor.
    *

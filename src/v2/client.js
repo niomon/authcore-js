@@ -1093,6 +1093,10 @@ class Client {
     return resp.data
   }
 
+  async getCurrentUserPass () {
+    const resp = await this._http(true).get(basePath + '/users/current/mfa/pass')
+    return resp.data
+  }
 
   _http (authenticated) {
     const headers = {}

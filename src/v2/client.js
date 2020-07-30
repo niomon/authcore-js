@@ -1088,14 +1088,36 @@ class Client {
     await this._http(true).delete(basePath + '/sessions/current')
   }
 
+  /**
+   * Generate Pass factor to be registered for current user.
+   *
+   * @returns {object} Pass factor information for registration.
+   */
   async generatePass () {
     const resp = await this._http(true).post(basePath + '/users/current/mfa/pass/register')
     return resp.data
   }
 
+  /**
+   * Get current user Pass factor.
+   *
+   * @returns {object} Current user Pass factor.
+   */
   async getCurrentUserPass () {
     const resp = await this._http(true).get(basePath + '/users/current/mfa/pass')
     return resp.data
+  }
+
+  /**
+   * Returns a URL to Authcore's privacy policy page.
+   *
+   * @param {object} options The options specific for this request.
+   * @returns {string} Privacy policy link in widgets.
+   */
+  privacyPolicyURL (options = {}) {
+    const params = new URLSearchParams()
+    params.append('clientId', this.authcore.clientId)
+    return new URL('/widgets/privacy?' + params.toString(), this.authcore.baseURL).toString()
   }
 
   _http (authenticated) {

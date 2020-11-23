@@ -423,7 +423,7 @@ class Client {
     if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
-    const resp = await this._http(true).post(basePath + '/authn/get_state', {
+    const resp = await this._http(false).post(basePath + '/authn/get_state', {
       'state_token': stateToken
     })
     return resp.data

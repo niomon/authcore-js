@@ -443,6 +443,13 @@ class Settings extends AuthCoreWidget {
   }
 }
 
+class SettingPass extends AuthCoreWidget {
+  constructor (options) {
+    super(options)
+    this.widget.src = this.buildWidgetSrc(options, 'settings/mfa/authenticator/pass/new')
+  }
+}
+
 /**
  * The sign out widget that is used to invalidate refresh token.
  *
@@ -499,6 +506,7 @@ const AuthCoreWidgets = {
   Contacts,
   Profile,
   Settings,
+  SettingPass,
   SignOut,
   RefreshToken
 }

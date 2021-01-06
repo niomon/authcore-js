@@ -7,6 +7,7 @@
   "scripts": {
     "test": "NODE_ENV=test nyc --all --reporter=html --reporter=text-summary mocha --recursive test --exit",
     "build": "babel ./src --out-dir ./dist --source-maps --copy-files",
+    "bundle": "webpack",
     "prepare": "npm run build",
     "lint": "eslint src --max-warnings=0",
     "lint-fix": "eslint src --fix",
@@ -17,11 +18,14 @@
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
     "@babel/plugin-transform-runtime": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
     "@babel/register": "^7.8.4",
+    "babel-loader": "^8.2.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "crypto-browserify": "^3.12.0",
     "documentation": "^12.0.2",
     "eslint": "^6.2.1",
     "eslint-config-standard": "^12.0.0",
@@ -39,7 +43,11 @@
     "nock": "^10.0.3",
     "nyc": "^13.1.0",
     "regenerator-runtime": "^0.13.3",
-    "url": "^0.11.0"
+    "stream-browserify": "^3.0.0",
+    "terser-webpack-plugin": "^5.0.3",
+    "url": "^0.11.0",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.1"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.8.4",

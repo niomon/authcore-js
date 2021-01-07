@@ -54,3 +54,18 @@ docs:
       - node_modules/
   only:
     - master
+
+bundle:
+  stage: publish
+  image: node:lts
+  script:
+    - yarn bundle
+  artifacts:
+    paths:
+      - dist/
+  cache:
+    key: ${CI_JOB_NAME}
+    paths:
+      - node_modules/
+  only:
+    - master

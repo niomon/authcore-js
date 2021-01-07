@@ -58,11 +58,15 @@ docs:
 bundle:
   stage: publish
   image: node:lts
+  except:
+    - schedules
+  before_script:
+    - yarn install
   script:
     - yarn bundle
   artifacts:
     paths:
-      - dist/
+      - dist/*.min.js*
   cache:
     key: ${CI_JOB_NAME}
     paths:

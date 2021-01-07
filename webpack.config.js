@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const TerserPlugin = require('terser-webpack-plugin')
 
 module.exports = {
@@ -7,8 +8,8 @@ module.exports = {
   output: {
     filename: 'authcore.min.js', // Desired file name. Same as in package.json's "main" field.
     path: path.resolve(__dirname, 'dist'),
-    library: 'authcore-js', // Desired name for the global variable when using as a drop-in script-tag.
-    libraryTarget: 'commonjs',
+    library: 'authcore', // Desired name for the global variable when using as a drop-in script-tag.
+    libraryTarget: 'umd',
     globalObject: 'this'
   },
   module: {
@@ -37,6 +38,13 @@ module.exports = {
       "stream": require.resolve("stream-browserify")
     }
   },
+  plugins: [
+    // fix "process is not defined" error:
+    // (do "npm install process" before running the build)
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+  ],
   optimization: {
     minimize: true,
     minimizer: [new TerserPlugin()]

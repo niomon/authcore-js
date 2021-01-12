@@ -22,5 +22,8 @@ export class Authcore {
     this.client = new Client(this, options.client || {})
     this.utils = new Utils(this)
     this.tokenManager = new TokenManager(this.clientId, options.tokenManager || {})
+    if (options.accessToken) {
+      this.tokenManager.add('access_token', options.accessToken)
+    }
   }
 }

@@ -23,6 +23,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/register": "^7.8.4",
     "babel-loader": "^8.2.2",
+    "buffer": "^6.0.3",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "crypto-browserify": "^3.12.0",

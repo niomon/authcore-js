@@ -35,13 +35,14 @@ module.exports = {
   resolve: {
     fallback: {
       "crypto": require.resolve("crypto-browserify"),
-      "stream": require.resolve("stream-browserify")
+      "stream": require.resolve("stream-browserify"),
     }
   },
   plugins: [
     // fix "process is not defined" error:
     // (do "npm install process" before running the build)
     new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
       process: 'process/browser',
     }),
   ],

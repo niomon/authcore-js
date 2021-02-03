@@ -26,6 +26,7 @@ function clearChildren (id) {
  * @param {object} options.primaryColour The primary colour for the widget.
  * @param {object} options.successColour The success colour for the widget.
  * @param {object} options.dangerColour The danger colour for the widget.
+ * @param {object} options.backdropColour The backdrop colour for the widget.
  * @param {string} options.root The hostname for Authcore widgets.
  * @param {boolean} [options.display=true] Boolean flag indicating if the widget is visible.
  * @param {boolean} [options.internal=false] Boolean flag indicating if the widget is internally
@@ -241,6 +242,7 @@ class AuthCoreWidget {
       primaryColour = undefined,
       successColour = undefined,
       dangerColour = undefined,
+      backdropColour = undefined,
       internal = false,
       verification = true,
       requireUsername = false,
@@ -324,6 +326,7 @@ class AuthCoreWidget {
     primaryColour = this.buildColourCode(primaryColour)
     successColour = this.buildColourCode(successColour)
     dangerColour = this.buildColourCode(dangerColour)
+    backdropColour = this.buildColourCode(backdropColour)
     const paramsObj = {
       clientId: clientId,
       cid: this.containerId,
@@ -332,6 +335,7 @@ class AuthCoreWidget {
       primaryColour: primaryColour,
       successColour: successColour,
       dangerColour: dangerColour,
+      backdropColour: backdropColour,
       internal: internal,
       verification: verification,
       requireUsername: requireUsername,

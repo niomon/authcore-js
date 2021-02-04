@@ -133,6 +133,10 @@ class AuthCoreWidget {
     this.container = container
 
     this.widget = widget
+
+    // Override default referrerPolicy from page and browser to prevent referrer is empty.
+    this.widget.referrerPolicy = 'strict-origin-when-cross-origin'
+
     this.callbacks = callbacks
 
     this.callbacks['_updateHeight'] = data => {

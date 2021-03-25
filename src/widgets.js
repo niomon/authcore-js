@@ -174,7 +174,8 @@ class AuthCoreWidget {
       if (typeof e.data !== 'object') return
       const { type, data } = e.data
       if (typeof type !== 'string' || !(type.startsWith('AuthCore_'))) return
-      if (typeof data !== 'object' || data.containerId !== this.containerId) return
+      // HACK: skip checking containerId as it is broken in current authcore
+      // if (typeof data !== 'object' || data.containerId !== this.containerId) return
       const cbName = type.substr(9)
       const privCbName = `_${cbName}`
       if (typeof this.callbacks[cbName] === 'function') {

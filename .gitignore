@@ -82,7 +82,5 @@ typings/
 # documentation build output
 /jsdoc.md
 
-.package-alias.json
-
 # Transpile build
 dist/

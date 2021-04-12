@@ -1,6 +1,7 @@
 import Authn from './authn'
 import Client from './client'
 import TokenManager from './tokenManager'
+import * as utils from './utils'
 
 export class Authcore {
   constructor (options = {}) {
@@ -20,6 +21,7 @@ export class Authcore {
     this.authn = new Authn(this)
     this.client = new Client(this, options.client || {})
     this.tokenManager = new TokenManager(this.clientId, options.tokenManager || {})
+    this.utils = utils
     if (options.accessToken) {
       this.tokenManager.add('access_token', options.accessToken)
     }

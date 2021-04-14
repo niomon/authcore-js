@@ -446,6 +446,9 @@ class Client {
     params.append('redirect_uri', redirectURI)
     params.append('scope', options.scope || '')
     params.append('state', state)
+    if (options.identityProvider) {
+      params.append('identity_provider', options.identityProvider)
+    }
     return new URL('/oauth/authorize?' + params.toString(), this.authcore.baseURL).toString()
   }
 

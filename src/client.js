@@ -841,8 +841,8 @@ class Client {
     if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (!typeChecker(roleId, 'number', true)) {
-      throw new Error('roleId is required and has to be number format')
+    if (!typeChecker(roleId, 'string', true)) {
+      throw new Error('roleId is required and has to be string format')
     }
     const req = {
       role_id: roleId
@@ -861,8 +861,8 @@ class Client {
     if (!typeChecker(userId, 'number', true)) {
       throw new Error('userId is required and has to be number format')
     }
-    if (!typeChecker(roleId, 'number', true)) {
-      throw new Error('roleId is required and has to be number format')
+    if (!typeChecker(roleId, 'string', true)) {
+      throw new Error('roleId is required and has to be string format')
     }
     await this._http(true).delete(`${basePath}/users/${userId}/roles/${roleId}`)
   }

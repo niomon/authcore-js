@@ -391,15 +391,24 @@ class Client {
    *
    * @param {*} stateToken A state token.
    * @param {*} resetToken A reset token.
+   * @param {string} passwordMethod Password method.
    * @param {object} passwordVerifier The password verifier generated from user's password.
    * @returns {object} An authentication state.
    */
-  async verifyPasswordReset (stateToken, resetToken, passwordVerifier) {
+  async verifyPasswordReset (stateToken, resetToken, passwordMethod, passwordVerifier) {
+    if (passwordVerifier === undefined && passwordMethod) {
+      // For backward compatibility
+      passwordVerifier = passwordMethod
+      passwordMethod = "spake2plus"
+    }
     if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!typeChecker(resetToken, 'string', true)) {
       throw new Error('resetToken is required')
+    }
+    if (!typeChecker(passwordMethod, 'string')) {
+      throw new Error('passwordMethod must be a string')
     }
     if (!typeChecker(passwordVerifier, 'object')) {
       throw new Error('passwordVerifier must be an object')
@@ -408,6 +417,7 @@ class Client {
     const resp = await this._http(true).post(basePath + '/authn/password_reset/verify', {
       'state_token': stateToken,
       'reset_token': resetToken,
+      'password_method': passwordMethod,
       'password_verifier': passwordVerifier
     })
     return resp.data

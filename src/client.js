@@ -316,30 +316,30 @@ class Client {
   }
 
   /**
-   * Start a session step-up transaction.
+   * Start a password change transaction.
    *
    * @returns {object} An authentication state.
    */
-  async startStepUp () {
-    const resp = await this._http(true).post(basePath + '/authn/step_up', {})
+  async startPasswordChange () {
+    const resp = await this._http(true).post(basePath + '/authn/password_change', {})
     return resp.data
   }
 
   /**
-   * Request a password key exchange challenge for a step-up transaction.
+   * Request a password key exchange challenge for a password change transaction.
    *
    * @param {string} stateToken A state token.
    * @param {Buffer} message A password key exchange message.
    * @returns {Buffer} A password key exchange challenge message.
    */
-  async requestPasswordStepUp (stateToken, message) {
+  async requestChallengeForPasswordChange (stateToken, message) {
     if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
     if (!Buffer.isBuffer(message)) {
       throw new Error('message must be a buffer')
     }
-    const resp = await this._http(true).post(basePath + '/authn/step_up/password', {
+    const resp = await this._http(true).post(basePath + '/authn/password_change/challenge', {
       'state_token': stateToken,
       'message': message.toString('base64')
     })
@@ -351,19 +351,29 @@ class Client {
    * Verify password for a step-up transaction.
    *
    * @param {string} stateToken A state token.
-   * @param {Buffer} response A password verification response.
+   * @param {string} newPasswordMethod Password method of the new password.
+   * @param {object} newPasswordVerifier Password verifier of the new password.
+   * @param {Buffer} oldPasswordVerifier A password verification response.
    * @returns {object} An authentication state.
    */
-  async verifyPasswordStepUp (stateToken, response) {
+  async verifyPasswordChange (stateToken, newPasswordMethod, newPasswordVerifier, oldPasswordVerifier) {
     if (!typeChecker(stateToken, 'string', true)) {
       throw new Error('stateToken is required')
     }
-    if (!Buffer.isBuffer(response)) {
+    if (!typeChecker(newPasswordMethod, 'string', true)) {
+      throw new Error('newPasswordMethod is required')
+    }
+    if (!typeChecker(newPasswordMethod, 'string', true)) {
+      throw new Error('newPasswordMethod is required')
+    }
+    if (oldPasswordVerifier !== undefined && !Buffer.isBuffer(oldPasswordVerifier)) {
       throw new Error('response must be a buffer')
     }
-    const resp = await this._http(true).post(basePath + '/authn/step_up/password/verify', {
+    const resp = await this._http(true).post(basePath + '/authn/password_change/verify', {
       'state_token': stateToken,
-      'verifier': response.toString('base64')
+      'verifier': oldPasswordVerifier && oldPasswordVerifier.toString('base64'),
+      'new_password_method': newPasswordMethod,
+      'new_password_verifier': newPasswordVerifier
     })
     return resp.data
   }

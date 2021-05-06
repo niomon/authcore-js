@@ -1,4 +1,5 @@
 import spake2 from './crypto/spake2.js'
+import { createPasswordVerifier } from './utils'
 
 /**
  * A higher-level API for performing authentication transaction.
@@ -174,27 +175,38 @@ class Authn {
   }
 
   /**
-   * Perform password step-up authentication. This method performs verification handshake if needed.
+   * Perform a password change transaction.
    *
-   * @param {string} password A plaintext password.
+   * @param {string} newPassword New plaintext password.
+   * @param {string} oldPassword Old plaintext password. If could be empty if the user had not set a password.
    * @returns {object} An authentication state.
    */
-  async verifyPasswordStepUp (password) {
-    if (typeof password !== 'string') {
-      throw new Error('password is required')
+  async changePassword (newPassword, oldPassword) {
+    if (typeof newPassword !== 'string') {
+      throw new Error('newPassword is required')
     }
 
-    const state = await this.authcore.client.startStepUp()
-
+    const state = await this.authcore.client.startPasswordChange()
     const stateToken = state['state_token']
-    const salt = Buffer.from(state['password_salt'], 'base64')
-    const ps = await spake2().startClient('authcoreuser', 'authcore', password, salt)
-    const message = ps.getMessage()
-    const challenge = await this.authcore.client.requestPasswordStepUp(stateToken, message)
 
-    const sharedSecret = ps.finish(challenge)
-    const confirmation = sharedSecret.getConfirmation()
-    return this.authcore.client.verifyPasswordStepUp(stateToken, confirmation)
+    let oldPasswordVerifier = undefined
+
+    if (state.password_method) {
+      if (typeof oldPassword !== 'string') {
+        throw new Error('oldPassword is required')
+      }
+      const salt = Buffer.from(state['password_salt'], 'base64')
+      const ps = await spake2().startClient('authcoreuser', 'authcore', oldPassword, salt)
+      const message = ps.getMessage()
+      const challenge = await this.authcore.client.requestChallengeForPasswordChange(stateToken, message)
+      const sharedSecret = ps.finish(challenge)
+      oldPasswordVerifier = sharedSecret.getConfirmation()
+    }
+
+    const newPasswordMethod = 'spake2plus'
+    const newPasswordVerifier = await createPasswordVerifier(newPassword)
+
+    return this.authcore.client.verifyPasswordChange(stateToken, newPasswordMethod, newPasswordVerifier, oldPasswordVerifier)
   }
 }
 

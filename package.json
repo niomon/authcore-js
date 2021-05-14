@@ -1,6 +1,6 @@
 {
   "name": "authcore-js",
-  "version": "1.0.1",
+  "version": "1.1.0-widi",
   "description": "",
   "main": "dist/index.js",
   "module": "src/index.js",

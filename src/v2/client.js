@@ -379,7 +379,7 @@ class Client {
       throw new Error('handle is required')
     }
 
-    const resp = await this._http(true).post(basePath + '/authn/password_reset', {
+    const resp = await this._http(false).post(basePath + '/authn/password_reset', {
       'client_id': this.authcore.clientId,
       'handle': handle
     })
@@ -405,7 +405,7 @@ class Client {
       throw new Error('passwordVerifier must be an object')
     }
 
-    const resp = await this._http(true).post(basePath + '/authn/password_reset/verify', {
+    const resp = await this._http(false).post(basePath + '/authn/password_reset/verify', {
       'state_token': stateToken,
       'reset_token': resetToken,
       'password_verifier': passwordVerifier

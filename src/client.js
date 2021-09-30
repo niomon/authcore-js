@@ -469,6 +469,9 @@ class Client {
     if (options.identityProvider) {
       params.append('identity_provider', options.identityProvider)
     }
+    if (options.webAuthn) {
+      params.append('webauthn', '1')
+    }
     return new URL('/oauth/authorize?' + params.toString(), this.authcore.baseURL).toString()
   }
 

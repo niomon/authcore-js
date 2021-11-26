@@ -1179,6 +1179,91 @@ class AuthCoreAuthClient {
   }
 
   /**
+   * Creates a new secretd authentication flow for an authenticated user, by requesting a
+   * password challenge from the server.
+   *
+   * @public
+   * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
+   */
+  async startSecretdExportAuthentication () {
+    const AuthService = await this._getAuthService()
+
+    const startSecretdExportAuthnResponse = await AuthService.StartSecretdExportAuthn({
+      'body': {}
+    })
+    const startSecretdExportAuthnResBody = startSecretdExportAuthnResponse.body
+
+    this.temporaryToken = startSecretdExportAuthnResBody['temporary_token']
+    this._updateChallenges(startSecretdExportAuthnResBody)
+
+    return startSecretdExportAuthnResBody
+  }
+
+  /**
+   * Authenticates a user by password, under the SPAKE2+ protocol.
+   *
+   * @public
+   * @param {string} password The password of the user.
+   * @returns {Promise<SecretdAuthenticationState>} The authentication state.
+   */
+  async authenticateSecretdWithPassword (password) {
+    const { salt, temporaryToken } = this
+    const AuthService = await this._getAuthService()
+    const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
+    const message = state.getMessage()
+    const secretdExportAuthnKeyExchangeResponse = await AuthService.SecretdExportAuthnKeyExchange({
+      'body': {
+        'temporary_token': temporaryToken,
+        'message': toBase64(message)
+      }
+    })
+    const secretdExportAuthnKeyExchangeResBody = secretdExportAuthnKeyExchangeResponse.body
+    const incomingMessage = fromBase64(secretdExportAuthnKeyExchangeResBody['password_challenge']['message'])
+    const challengeToken = secretdExportAuthnKeyExchangeResBody['password_challenge']['token']
+
+    const sharedSecret = state.finish(incomingMessage)
+    const confirmation = sharedSecret.getConfirmation()
+
+    const authenticateResponse = await AuthService.FinishSecretdExportAuthn({
+      'body': {
+        'temporary_token': temporaryToken,
+        'password_response': {
+          'token': challengeToken,
+          'confirmation': toBase64(confirmation)
+        }
+      }
+    })
+    const authenticateResBody = authenticateResponse.body
+
+    this._updateChallenges(authenticateResBody)
+    return authenticateResBody
+  }
+
+  /**
+   * Authenticates a user without password in secretd authentication.
+   * If a user do not have password, startSecretdExportAuthentication will return a SecretdAuthenticationState having
+   * empty challenges.
+   * They can then call this API directly to optain the secretd access token.
+   *
+   * @public
+   * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
+   */
+  async authenticateSecretdWithNoPassword () {
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
+
+    const authenticateResponse = await AuthService.FinishSecretdExportAuthn({
+      'body': {
+        'temporary_token': temporaryToken
+      }
+    })
+    const authenticateResBody = authenticateResponse.body
+
+    this._updateChallenges(authenticateResBody)
+    return authenticateResBody
+  }
+
+  /**
    * Getter of Swagger API AuthService. Get inner AuthService Object or retrieve it from swagger
    * by calling getSwaggerClient.
    *
@@ -1292,6 +1377,17 @@ class AuthCoreAuthClient {
  * @property {object} password_challenge The challenge for the password under the SPAKE protocol.
  * @property {string} authorization_token The authorization token if the authentication flow is
  *           completed.
+ */
+
+/**
+ * @typedef {object} SecretdAuthenticationState The `SecretdAuthenticationState` entity defined by the protocol
+ *          buffers.
+ * @property {string} temporary_token The temporary token during secretd authentication.
+ * @property {string[]} challenges The list of challenges that can be completed to continue the
+ *           secretd authentication flow.
+ * @property {object} password_challenge The challenge for the password under the SPAKE protocol.
+ * @property {string} secretd_access_token  The secretd access token for the user, or an empty string if the
+ *           user is not authenticated for secretd key export.
  */
 
 /**

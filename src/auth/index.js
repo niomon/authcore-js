@@ -97,9 +97,10 @@ class AuthCoreAuthClient {
    *
    * @public
    * @param {string} password The password of the user.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
-  async authenticateWithPassword (password) {
+  async authenticateWithPassword (password, gRecaptchaResponse = '') {
     const { salt, temporaryToken } = this
     const AuthService = await this._getAuthService()
     const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
@@ -123,7 +124,8 @@ class AuthCoreAuthClient {
         'password_response': {
           'token': challengeToken,
           'confirmation': toBase64(confirmation)
-        }
+        },
+        'g_recaptcha_response': gRecaptchaResponse
       }
     })
     const authenticateResBody = authenticateResponse.body
@@ -369,9 +371,10 @@ class AuthCoreAuthClient {
    * @param {string} user.email The purposed email address of the user.
    * @param {string} user.password The purposed password of the user.
    * @param {string} user.displayName The purposed display name of the user.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<AccessToken>} The access token.
    */
-  async createUser (user) {
+  async createUser (user, gRecaptchaResponse = '') {
     const { username = '', phone = '', email = '', password } = user
     let { displayName } = user
     if (displayName === undefined) {
@@ -398,7 +401,8 @@ class AuthCoreAuthClient {
         'email': email,
         'phone': phone,
         'display_name': displayName,
-        'send_verification': true
+        'send_verification': true,
+        'g_recaptcha_response': gRecaptchaResponse
       }
     })
     const createUserResBody = createUserResponse.body
@@ -952,15 +956,17 @@ class AuthCoreAuthClient {
    * @public
    * @param {string} handle A handle of the user. Should either be a email address or a phone
    *        number.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<object>} The authentication state for reset password.
    */
-  async startResetPasswordAuthentication (handle) {
+  async startResetPasswordAuthentication (handle, gRecaptchaResponse = '') {
     const AuthService = await this._getAuthService()
 
     const startResetPasswordAuthenticationResponse = await AuthService.StartResetPasswordAuthentication({
       'body': {
         'client_id': this.config.clientId,
-        'user_handle': handle
+        'user_handle': handle,
+        'g_recaptcha_response': gRecaptchaResponse
       }
     })
     const startResetPasswordAuthenticationResBody = startResetPasswordAuthenticationResponse.body

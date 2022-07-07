@@ -10,14 +10,14 @@ function mockAPI(steps) {
     if (count === undefined) count = 1
     switch (type) {
       case 'SwaggerClient':
-        nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json?v=0.3').times(count)
+        nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json?v=0.3.12').times(count)
           .replyWithFile(
             200, `${__dirname}/../../authcore.swagger.json`,
             { 'Content-Type': 'application/json' }
           )
         break
       case 'SwaggerClient404':
-        nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json?v=0.3').times(count)
+        nock('http://0.0.0.0:13337').get('/api/authapi/authcore.swagger.json?v=0.3.12').times(count)
           .reply(404, '404 page not found')
         break
       case 'SwaggerMgmtClient404':
@@ -330,7 +330,7 @@ function mockAPI(steps) {
           .reply(200, {})
         break
       case 'SwaggerClientForHTTPS':
-        nock('https://0.0.0.0:13338').get('/api/authapi/authcore.swagger.json?v=0.3').times(count)
+        nock('https://0.0.0.0:13338').get('/api/authapi/authcore.swagger.json?v=0.3.12').times(count)
           .replyWithFile(
             200, `${__dirname}/../../authcore.swagger.json`,
             { 'Content-Type': 'application/json' }

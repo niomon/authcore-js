@@ -437,9 +437,10 @@ class AuthCoreAuthClient {
    * @param {string} oauth.accessToken The access token for OAuth.
    * @param {string} oauth.service The service for OAuth.
    * @param {boolean} contactVerified A flag indicating that the contact is already verified by the OAuth factor.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<AccessToken>} The access token.
    */
-  async createUserByOAuth (user, oauth, contactVerified) {
+  async createUserByOAuth (user, oauth, contactVerified, gRecaptchaResponse = '') {
     const { username = '', phone = '', email = '' } = user
     let { displayName } = user
     if (displayName === undefined) {
@@ -462,7 +463,8 @@ class AuthCoreAuthClient {
         'email': email,
         'phone': phone,
         'display_name': displayName,
-        'send_verification': !contactVerified
+        'send_verification': !contactVerified,
+        'g_recaptcha_response': gRecaptchaResponse
       }
     })
     const createUserResBody = createUserResponse.body

@@ -101,37 +101,38 @@ class AuthCoreAuthClient {
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
   async authenticateWithPassword (password, gRecaptchaResponse = '') {
-    const { salt, temporaryToken } = this
-    const AuthService = await this._getAuthService()
-    const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
-    const message = state.getMessage()
-    const startAuthenticatePasswordResponse = await AuthService.PasswordAuthnKeyExchange({
-      'body': {
-        'temporary_token': temporaryToken,
-        'message': toBase64(message)
-      }
-    })
-    const startAuthenticatePasswordResBody = startAuthenticatePasswordResponse.body
-    const incomingMessage = fromBase64(startAuthenticatePasswordResBody['password_challenge']['message'])
-    const challengeToken = startAuthenticatePasswordResBody['password_challenge']['token']
+    // TODO: to be updated
+    // const { salt, temporaryToken } = this
+    // const AuthService = await this._getAuthService()
+    // const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
+    // const message = state.getMessage()
+    // const startAuthenticatePasswordResponse = await AuthService.PasswordAuthnKeyExchange({
+    //   'body': {
+    //     'temporary_token': temporaryToken,
+    //     'message': toBase64(message)
+    //   }
+    // })
+    // const startAuthenticatePasswordResBody = startAuthenticatePasswordResponse.body
+    // const incomingMessage = fromBase64(startAuthenticatePasswordResBody['password_challenge']['message'])
+    // const challengeToken = startAuthenticatePasswordResBody['password_challenge']['token']
 
-    const sharedSecret = state.finish(incomingMessage)
-    const confirmation = sharedSecret.getConfirmation()
+    // const sharedSecret = state.finish(incomingMessage)
+    // const confirmation = sharedSecret.getConfirmation()
 
-    const authenticateResponse = await AuthService.FinishPasswordAuthn({
-      'body': {
-        'temporary_token': temporaryToken,
-        'password_response': {
-          'token': challengeToken,
-          'confirmation': toBase64(confirmation)
-        },
-        'g_recaptcha_response': gRecaptchaResponse
-      }
-    })
-    const authenticateResBody = authenticateResponse.body
+    // const authenticateResponse = await AuthService.FinishPasswordAuthn({
+    //   'body': {
+    //     'temporary_token': temporaryToken,
+    //     'password_response': {
+    //       'token': challengeToken,
+    //       'confirmation': toBase64(confirmation)
+    //     },
+    //     'g_recaptcha_response': gRecaptchaResponse
+    //   }
+    // })
+    // const authenticateResBody = authenticateResponse.body
 
-    this._updateChallenges(authenticateResBody)
-    return authenticateResBody
+    // this._updateChallenges(authenticateResBody)
+    // return authenticateResBody
   }
 
   /**
@@ -375,53 +376,54 @@ class AuthCoreAuthClient {
    * @returns {Promise<AccessToken>} The access token.
    */
   async createUser (user, gRecaptchaResponse = '') {
-    const { username = '', phone = '', email = '', password } = user
-    let { displayName } = user
-    if (displayName === undefined) {
-      if (username !== '') {
-        displayName = username
-      } else if (email !== '') {
-        displayName = email
-      } else if (phone !== '') {
-        displayName = phone
-      } else {
-        throw new Error('displayName cannot be undefined')
-      }
-    }
-    if (password === undefined) {
-      throw new Error('no password')
-    }
-    let AuthService = await this._getAuthService()
+    // TODO: to be updated
+    // const { username = '', phone = '', email = '', password } = user
+    // let { displayName } = user
+    // if (displayName === undefined) {
+    //   if (username !== '') {
+    //     displayName = username
+    //   } else if (email !== '') {
+    //     displayName = email
+    //   } else if (phone !== '') {
+    //     displayName = phone
+    //   } else {
+    //     throw new Error('displayName cannot be undefined')
+    //   }
+    // }
+    // if (password === undefined) {
+    //   throw new Error('no password')
+    // }
+    // let AuthService = await this._getAuthService()
 
-    // Step 1: Create a user
-    const createUserResponse = await AuthService.CreateUser({
-      'body': {
-        'client_id': this.config.clientId,
-        'username': username,
-        'email': email,
-        'phone': phone,
-        'display_name': displayName,
-        'send_verification': true,
-        'g_recaptcha_response': gRecaptchaResponse
-      }
-    })
-    const createUserResBody = createUserResponse.body
-    const accessToken = await this.createAccessTokenByRefreshToken(createUserResBody['refresh_token'])
-    // We need to replace the old AuthService to use the new instance with access token.
-    AuthService = await this._getAuthService()
+    // // Step 1: Create a user
+    // const createUserResponse = await AuthService.CreateUser({
+    //   'body': {
+    //     'client_id': this.config.clientId,
+    //     'username': username,
+    //     'email': email,
+    //     'phone': phone,
+    //     'display_name': displayName,
+    //     'send_verification': true,
+    //     'g_recaptcha_response': gRecaptchaResponse
+    //   }
+    // })
+    // const createUserResBody = createUserResponse.body
+    // const accessToken = await this.createAccessTokenByRefreshToken(createUserResBody['refresh_token'])
+    // // We need to replace the old AuthService to use the new instance with access token.
+    // AuthService = await this._getAuthService()
 
-    // Step 2: Change the password of the created user
-    const { salt, verifier } = await createVerifier(password)
-    await AuthService.FinishChangePassword({
-      'body': {
-        'password_verifier': {
-          'salt': salt,
-          'verifierW0': verifier.w0,
-          'verifierL': verifier.L
-        }
-      }
-    })
-    return accessToken
+    // // Step 2: Change the password of the created user
+    // const { salt, verifier } = await createVerifier(password)
+    // await AuthService.FinishChangePassword({
+    //   'body': {
+    //     'password_verifier': {
+    //       'salt': salt,
+    //       'verifierW0': verifier.w0,
+    //       'verifierL': verifier.L
+    //     }
+    //   }
+    // })
+    // return accessToken
   }
 
   /**
@@ -504,51 +506,52 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async changePassword (oldPassword, newPassword) {
-    const AuthService = await this._getAuthService()
+    // TODO: to be removed
+    // const AuthService = await this._getAuthService()
 
-    if (oldPassword !== '') {
-      const startChangePasswordResponse = await AuthService.StartChangePassword()
-      const startChangePasswordResBody = startChangePasswordResponse.body
-      const oldSalt = fromBase64(startChangePasswordResBody['salt'])
-      const oldState = await spake2().startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
-      const oldMessage = oldState.getMessage()
-      const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
-        'body': {
-          'message': toBase64(oldMessage)
-        }
-      })
-      const changePasswordKeyExchangeResBody = changePasswordKeyExchangeResponse.body
-      const incomingMessage = fromBase64(changePasswordKeyExchangeResBody['message'])
-      const oldChallengeToken = changePasswordKeyExchangeResBody['token']
+    // if (oldPassword !== '') {
+    //   const startChangePasswordResponse = await AuthService.StartChangePassword()
+    //   const startChangePasswordResBody = startChangePasswordResponse.body
+    //   const oldSalt = fromBase64(startChangePasswordResBody['salt'])
+    //   const oldState = await spake2().startClient('authcoreuser', 'authcore', oldPassword, oldSalt)
+    //   const oldMessage = oldState.getMessage()
+    //   const changePasswordKeyExchangeResponse = await AuthService.ChangePasswordKeyExchange({
+    //     'body': {
+    //       'message': toBase64(oldMessage)
+    //     }
+    //   })
+    //   const changePasswordKeyExchangeResBody = changePasswordKeyExchangeResponse.body
+    //   const incomingMessage = fromBase64(changePasswordKeyExchangeResBody['message'])
+    //   const oldChallengeToken = changePasswordKeyExchangeResBody['token']
 
-      const sharedSecret = oldState.finish(incomingMessage)
-      const confirmation = sharedSecret.getConfirmation()
-      const { salt, verifier } = await createVerifier(newPassword)
-      await AuthService.FinishChangePassword({
-        'body': {
-          'old_password_response': {
-            'token': oldChallengeToken,
-            'confirmation': toBase64(confirmation)
-          },
-          'password_verifier': {
-            'salt': salt,
-            'verifierW0': verifier.w0,
-            'verifierL': verifier.L
-          }
-        }
-      })
-    } else {
-      const { salt, verifier } = await createVerifier(newPassword)
-      await AuthService.FinishChangePassword({
-        'body': {
-          'password_verifier': {
-            'salt': salt,
-            'verifierW0': verifier.w0,
-            'verifierL': verifier.L
-          }
-        }
-      })
-    }
+    //   const sharedSecret = oldState.finish(incomingMessage)
+    //   const confirmation = sharedSecret.getConfirmation()
+    //   const { salt, verifier } = await createVerifier(newPassword)
+    //   await AuthService.FinishChangePassword({
+    //     'body': {
+    //       'old_password_response': {
+    //         'token': oldChallengeToken,
+    //         'confirmation': toBase64(confirmation)
+    //       },
+    //       'password_verifier': {
+    //         'salt': salt,
+    //         'verifierW0': verifier.w0,
+    //         'verifierL': verifier.L
+    //       }
+    //     }
+    //   })
+    // } else {
+    //   const { salt, verifier } = await createVerifier(newPassword)
+    //   await AuthService.FinishChangePassword({
+    //     'body': {
+    //       'password_verifier': {
+    //         'salt': salt,
+    //         'verifierW0': verifier.w0,
+    //         'verifierL': verifier.L
+    //       }
+    //     }
+    //   })
+    // }
   }
 
   /**
@@ -1213,36 +1216,37 @@ class AuthCoreAuthClient {
    * @returns {Promise<SecretdAuthenticationState>} The authentication state.
    */
   async authenticateSecretdWithPassword (password) {
-    const { salt, temporaryToken } = this
-    const AuthService = await this._getAuthService()
-    const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
-    const message = state.getMessage()
-    const secretdExportAuthnKeyExchangeResponse = await AuthService.SecretdExportAuthnKeyExchange({
-      'body': {
-        'temporary_token': temporaryToken,
-        'message': toBase64(message)
-      }
-    })
-    const secretdExportAuthnKeyExchangeResBody = secretdExportAuthnKeyExchangeResponse.body
-    const incomingMessage = fromBase64(secretdExportAuthnKeyExchangeResBody['password_challenge']['message'])
-    const challengeToken = secretdExportAuthnKeyExchangeResBody['password_challenge']['token']
+    // TODO: to be updated
+    // const { salt, temporaryToken } = this
+    // const AuthService = await this._getAuthService()
+    // const state = await spake2().startClient('authcoreuser', 'authcore', password, salt)
+    // const message = state.getMessage()
+    // const secretdExportAuthnKeyExchangeResponse = await AuthService.SecretdExportAuthnKeyExchange({
+    //   'body': {
+    //     'temporary_token': temporaryToken,
+    //     'message': toBase64(message)
+    //   }
+    // })
+    // const secretdExportAuthnKeyExchangeResBody = secretdExportAuthnKeyExchangeResponse.body
+    // const incomingMessage = fromBase64(secretdExportAuthnKeyExchangeResBody['password_challenge']['message'])
+    // const challengeToken = secretdExportAuthnKeyExchangeResBody['password_challenge']['token']
 
-    const sharedSecret = state.finish(incomingMessage)
-    const confirmation = sharedSecret.getConfirmation()
+    // const sharedSecret = state.finish(incomingMessage)
+    // const confirmation = sharedSecret.getConfirmation()
 
-    const authenticateResponse = await AuthService.FinishSecretdExportAuthn({
-      'body': {
-        'temporary_token': temporaryToken,
-        'password_response': {
-          'token': challengeToken,
-          'confirmation': toBase64(confirmation)
-        }
-      }
-    })
-    const authenticateResBody = authenticateResponse.body
+    // const authenticateResponse = await AuthService.FinishSecretdExportAuthn({
+    //   'body': {
+    //     'temporary_token': temporaryToken,
+    //     'password_response': {
+    //       'token': challengeToken,
+    //       'confirmation': toBase64(confirmation)
+    //     }
+    //   }
+    // })
+    // const authenticateResBody = authenticateResponse.body
 
-    this._updateChallenges(authenticateResBody)
-    return authenticateResBody
+    // this._updateChallenges(authenticateResBody)
+    // return authenticateResBody
   }
 
   /**

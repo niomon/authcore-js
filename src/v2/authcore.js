@@ -2,7 +2,6 @@ import axios from 'axios'
 
 import AuthnAPI from './authn/api'
 import AuthnTransaction from './authn/transaction'
-import Utils from './utils'
 
 export class Authcore {
   constructor (config = {}) {
@@ -22,7 +21,6 @@ export class Authcore {
 
     this.authn = new AuthnAPI(this)
     this.authnTransaction = new AuthnTransaction(this)
-    this.utils = new Utils(this)
   }
 
   _http () {

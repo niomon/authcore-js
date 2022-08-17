@@ -388,7 +388,7 @@ class Login extends AuthCoreWidget {
       if (flags.verification !== undefined) {
         options.verification = flags.verification
       }
-      this.widget.src = this.buildWidgetSrc(options, 'verification')
+      // this.widget.src = this.buildWidgetSrc(options, 'verification')
     }
   }
 }

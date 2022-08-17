@@ -1,5 +1,3 @@
-import spake2 from '../../crypto/spake2.js'
-
 /**
  * A higher-level API for performance authentication transaction.
  */
@@ -28,31 +26,32 @@ class AuthnTransaction {
    * @returns {object} An authentication state.
    */
   async verifyPassword (state, password) {
-    if (typeof state !== 'object') {
-      throw new Error('state is required')
-    }
-    if (typeof state['state_token'] !== 'string') {
-      throw new Error('state_token is undefined')
-    }
-    if (state['password_method'] !== 'spake2plus') {
-      throw new Error('password authentication is not allowed')
-    }
-    if (typeof state['password_salt'] !== 'string') {
-      throw new Error('password_salt is undefined')
-    }
-    if (typeof password !== 'string') {
-      throw new Error('password is required')
-    }
-    const stateToken = state['state_token']
-    const salt = Buffer.from(state['password_salt'], 'base64')
-    const ps = await spake2().startClient('authcoreuser', 'authcore', password, salt)
-    const message = ps.getMessage()
-    const challenge = await this.authcore.authn.requestPassword(stateToken, message)
+    // TODO: update v2 API
+    // if (typeof state !== 'object') {
+    //   throw new Error('state is required')
+    // }
+    // if (typeof state['state_token'] !== 'string') {
+    //   throw new Error('state_token is undefined')
+    // }
+    // if (state['password_method'] !== 'spake2plus') {
+    //   throw new Error('password authentication is not allowed')
+    // }
+    // if (typeof state['password_salt'] !== 'string') {
+    //   throw new Error('password_salt is undefined')
+    // }
+    // if (typeof password !== 'string') {
+    //   throw new Error('password is required')
+    // }
+    // const stateToken = state['state_token']
+    // const salt = Buffer.from(state['password_salt'], 'base64')
+    // const ps = await spake2().startClient('authcoreuser', 'authcore', password, salt)
+    // const message = ps.getMessage()
+    // const challenge = await this.authcore.authn.requestPassword(stateToken, message)
 
-    const sharedSecret = ps.finish(challenge)
-    const confirmation = sharedSecret.getConfirmation()
+    // const sharedSecret = ps.finish(challenge)
+    // const confirmation = sharedSecret.getConfirmation()
 
-    return this.authcore.authn.verifyPassword(stateToken, confirmation)
+    // return this.authcore.authn.verifyPassword(stateToken, confirmation)
   }
 
   /**

@@ -1,6 +1,5 @@
 // swagger wrapper
 import Swagger from 'swagger-client'
-import spake2, { createVerifier } from '../crypto/spake2.js'
 import { randomTOTPSecret } from '../crypto/random.js'
 import { fromBase64, toBase64, toString } from '../utils/formatBuffer.js'
 
@@ -74,7 +73,7 @@ class AuthCoreAuthClient {
   async startAuthentication (handle, codeChallenge, codeChallengeMethod, successRedirectURL) {
     const AuthService = await this._getAuthService()
 
-    const startPasswordAuthnResponse = await AuthService.StartPasswordAuthn({
+    const startAuthnResponse = await AuthService.StartAuthn({
       'body': {
         'client_id': this.config.clientId,
         'user_handle': handle,
@@ -83,13 +82,27 @@ class AuthCoreAuthClient {
         'success_redirect_url': successRedirectURL
       }
     })
-    const startPasswordAuthnResBody = startPasswordAuthnResponse.body
+    const startAuthnResBody = startAuthnResponse.body
 
     this.handle = handle
-    this.temporaryToken = startPasswordAuthnResBody['temporary_token']
-    this._updateChallenges(startPasswordAuthnResBody)
+    this.temporaryToken = startAuthnResBody['temporary_token']
+    this._updateChallenges(startAuthnResBody)
 
-    return startPasswordAuthnResBody
+    return startAuthnResBody
+  }
+
+  async resendOTP () {
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
+    const resendOTPResponse = await AuthService.ResendOTPAuthn({
+      'body': {
+        'temporary_token': temporaryToken,
+      }
+    })
+    const resendOTPResBody = resendOTPResponse
+
+    this._updateChallenges(resendOTPResBody)
+    return resendOTPResBody
   }
 
   /**
@@ -134,6 +147,33 @@ class AuthCoreAuthClient {
     // this._updateChallenges(authenticateResBody)
     // return authenticateResBody
   }
+
+  /**
+   * Authenticates a user by OTP via Niomon.
+   *
+   * @public
+   * @param {string} otp The OTP of the user.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
+   * @returns {Promise<AuthenticationState>} The authentication state.
+   */
+   async authenticateWithOTP (otp, gRecaptchaResponse = '') {
+    const { temporaryToken } = this
+    const AuthService = await this._getAuthService()
+    const authenticateResponse = await AuthService.FinishOTPAuthn({
+      'body': {
+        'temporary_token': temporaryToken,
+        'otp_response': {
+          'otp': otp,
+        },
+        'g_recaptcha_response': gRecaptchaResponse
+      }
+    })
+    const authenticateResBody = authenticateResponse.body
+
+    this._updateChallenges(authenticateResBody)
+    return authenticateResBody
+  }
+  
 
   /**
    * Authenticates a user by time-based one time password (TOTP).
@@ -367,63 +407,51 @@ class AuthCoreAuthClient {
    *
    * @public
    * @param {object} user The user object.
-   * @param {string} user.username The purposed username of the user.
    * @param {string} user.phone The purposed phone number of the user.
    * @param {string} user.email The purposed email address of the user.
    * @param {string} user.password The purposed password of the user.
    * @param {string} user.displayName The purposed display name of the user.
    * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
+   * @param {string} [codeChallenge] The code challenge for PKCE.
+   * @param {string} [codeChallengeMethod] The challenge method for PKCE. Must either be "plain" or "S256".
+   * @param {string} [successRedirectURL] The redirect URL when authenticated successfully.
    * @returns {Promise<AccessToken>} The access token.
    */
-  async createUser (user, gRecaptchaResponse = '') {
-    // TODO: to be updated
-    // const { username = '', phone = '', email = '', password } = user
-    // let { displayName } = user
-    // if (displayName === undefined) {
-    //   if (username !== '') {
-    //     displayName = username
-    //   } else if (email !== '') {
-    //     displayName = email
-    //   } else if (phone !== '') {
-    //     displayName = phone
-    //   } else {
-    //     throw new Error('displayName cannot be undefined')
-    //   }
-    // }
-    // if (password === undefined) {
-    //   throw new Error('no password')
-    // }
-    // let AuthService = await this._getAuthService()
+  async createUser (user, codeChallenge, codeChallengeMethod, successRedirectURL, gRecaptchaResponse = '') {
+    const { phone = '', email = '' } = user
+    let { displayName } = user
+    if (displayName === undefined) {
+      if (email !== '') {
+        displayName = email
+      } else if (phone !== '') {
+        displayName = phone
+      } else {
+        throw new Error('displayName cannot be undefined')
+      }
+    }
+    let AuthService = await this._getAuthService()
 
-    // // Step 1: Create a user
-    // const createUserResponse = await AuthService.CreateUser({
-    //   'body': {
-    //     'client_id': this.config.clientId,
-    //     'username': username,
-    //     'email': email,
-    //     'phone': phone,
-    //     'display_name': displayName,
-    //     'send_verification': true,
-    //     'g_recaptcha_response': gRecaptchaResponse
-    //   }
-    // })
-    // const createUserResBody = createUserResponse.body
-    // const accessToken = await this.createAccessTokenByRefreshToken(createUserResBody['refresh_token'])
-    // // We need to replace the old AuthService to use the new instance with access token.
-    // AuthService = await this._getAuthService()
+    // Step 1: Create a user
+    const createUserResponse = await AuthService.CreateUser({
+      'body': {
+        'client_id': this.config.clientId,
+        'email': email,
+        'phone': phone,
+        'display_name': displayName,
+        'send_verification': true,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': codeChallengeMethod,
+        'success_redirect_url': successRedirectURL,
+        'g_recaptcha_response': gRecaptchaResponse
+      }
+    })
+    const createUserResBody = createUserResponse.body
 
-    // // Step 2: Change the password of the created user
-    // const { salt, verifier } = await createVerifier(password)
-    // await AuthService.FinishChangePassword({
-    //   'body': {
-    //     'password_verifier': {
-    //       'salt': salt,
-    //       'verifierW0': verifier.w0,
-    //       'verifierL': verifier.L
-    //     }
-    //   }
-    // })
-    // return accessToken
+    this.handle = email || phone
+    this.temporaryToken = createUserResBody['temporary_token']
+    this._updateChallenges(createUserResBody)
+
+    return createUserResBody
   }
 
   /**
@@ -844,7 +872,7 @@ class AuthCoreAuthClient {
     await AuthService.CompleteVerifyContact({
       'body': {
         'code': {
-          'contact_id': (contactId).toString(),
+          'contact_id': contactId,
           'code': code
         }
       }
@@ -1015,19 +1043,20 @@ class AuthCoreAuthClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async resetPassword (resetPasswordToken, newPassword) {
-    const AuthService = await this._getAuthService()
+    // TODO: remove this
+    // const AuthService = await this._getAuthService()
 
-    const { salt, verifier } = await createVerifier(newPassword)
-    await AuthService.ResetPassword({
-      'body': {
-        'token': resetPasswordToken,
-        'password_verifier': {
-          'salt': salt,
-          'verifierW0': verifier.w0,
-          'verifierL': verifier.L
-        }
-      }
-    })
+    // const { salt, verifier } = await createVerifier(newPassword)
+    // await AuthService.ResetPassword({
+    //   'body': {
+    //     'token': resetPasswordToken,
+    //     'password_verifier': {
+    //       'salt': salt,
+    //       'verifierW0': verifier.w0,
+    //       'verifierL': verifier.L
+    //     }
+    //   }
+    // })
   }
 
   /**
@@ -1367,6 +1396,8 @@ class AuthCoreAuthClient {
         case 'SMS_CODE': break
         case 'CONTACT_TOKEN': break
         case 'BACKUP_CODE': break
+        case 'NIOMON_OTP_EMAIL': break
+        case 'NIOMON_OTP_SMS': break
         /* istanbul ignore next */
         default: throw new Error(`Authentication method ${challenge} is not implemented`)
       }

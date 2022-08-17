@@ -1,8 +1,6 @@
 // swagger wrapper
 import Swagger from 'swagger-client'
 
-import { createVerifier } from '../crypto/spake2.js'
-
 /**
  * The class interacting between web client and AuthCore ManagementAPI server.
  *
@@ -467,48 +465,49 @@ class AuthCoreManagementClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async createUser (user) {
-    const { username = '', phone = '', email = '', password } = user
-    let { displayName } = user
-    if (displayName === undefined || displayName === '') {
-      if (username !== '') {
-        displayName = username
-      } else if (email !== '') {
-        displayName = email
-      } else if (phone !== '') {
-        displayName = phone
-      } else {
-        throw new Error('displayName cannot be undefined')
-      }
-    }
-    if (password === undefined) {
-      throw new Error('no password')
-    }
-    const { ManagementService } = this
+    // TODO: update this
+    // const { username = '', phone = '', email = '', password } = user
+    // let { displayName } = user
+    // if (displayName === undefined || displayName === '') {
+    //   if (username !== '') {
+    //     displayName = username
+    //   } else if (email !== '') {
+    //     displayName = email
+    //   } else if (phone !== '') {
+    //     displayName = phone
+    //   } else {
+    //     throw new Error('displayName cannot be undefined')
+    //   }
+    // }
+    // if (password === undefined) {
+    //   throw new Error('no password')
+    // }
+    // const { ManagementService } = this
 
-    // Step 1: Create a user
-    const createUserResponse = await ManagementService.CreateUser({
-      'body': {
-        'username': username,
-        'email': email,
-        'phone': phone,
-        'display_name': displayName
-      }
-    })
-    const createUserResBody = createUserResponse.body
-    const userId = createUserResBody['user']['id']
+    // // Step 1: Create a user
+    // const createUserResponse = await ManagementService.CreateUser({
+    //   'body': {
+    //     'username': username,
+    //     'email': email,
+    //     'phone': phone,
+    //     'display_name': displayName
+    //   }
+    // })
+    // const createUserResBody = createUserResponse.body
+    // const userId = createUserResBody['user']['id']
 
-    // Step 2: Change the password of the created user
-    const { salt, verifier } = await createVerifier(password)
-    await ManagementService.ChangePassword({
-      'body': {
-        'user_id': userId.toString(),
-        'password_verifier': {
-          'salt': salt,
-          'verifierW0': verifier.w0,
-          'verifierL': verifier.L
-        }
-      }
-    })
+    // // Step 2: Change the password of the created user
+    // const { salt, verifier } = await createVerifier(password)
+    // await ManagementService.ChangePassword({
+    //   'body': {
+    //     'user_id': userId.toString(),
+    //     'password_verifier': {
+    //       'salt': salt,
+    //       'verifierW0': verifier.w0,
+    //       'verifierL': verifier.L
+    //     }
+    //   }
+    // })
   }
 
   /**
@@ -519,19 +518,20 @@ class AuthCoreManagementClient {
    * @returns {Promise<undefined>} Undefined when succeed, throws an error when failed.
    */
   async changePassword (userId, newPassword) {
-    const { ManagementService } = this
+    // TODO: remove this function
+    // const { ManagementService } = this
 
-    const { salt, verifier } = await createVerifier(newPassword)
-    await ManagementService.ChangePassword({
-      'body': {
-        'user_id': userId.toString(),
-        'password_verifier': {
-          'salt': salt,
-          'verifierW0': verifier.w0,
-          'verifierL': verifier.L
-        }
-      }
-    })
+    // const { salt, verifier } = await createVerifier(newPassword)
+    // await ManagementService.ChangePassword({
+    //   'body': {
+    //     'user_id': userId.toString(),
+    //     'password_verifier': {
+    //       'salt': salt,
+    //       'verifierW0': verifier.w0,
+    //       'verifierL': verifier.L
+    //     }
+    //   }
+    // })
   }
 
   /**

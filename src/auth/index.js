@@ -724,11 +724,6 @@ class AuthCoreAuthClient {
       }
     })
     const createContactResBody = createContactResponse.body
-    await AuthService.StartVerifyContact({
-      'body': {
-        'contact_id': createContactResBody['id']
-      }
-    })
     return createContactResBody
   }
 
@@ -751,11 +746,6 @@ class AuthCoreAuthClient {
       }
     })
     const createContactResBody = createContactResponse.body
-    await AuthService.StartVerifyContact({
-      'body': {
-        'contact_id': createContactResBody['id']
-      }
-    })
     return createContactResBody
   }
 

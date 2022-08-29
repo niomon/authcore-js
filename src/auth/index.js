@@ -1217,8 +1217,7 @@ class AuthCoreAuthClient {
   }
 
   /**
-   * Creates a new secretd authentication flow for an authenticated user, by requesting a
-   * password challenge from the server.
+   * Creates a new secretd authentication flow for an authenticated user.
    *
    * @public
    * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
@@ -1231,10 +1230,41 @@ class AuthCoreAuthClient {
     })
     const startSecretdExportAuthnResBody = startSecretdExportAuthnResponse.body
 
-    this.temporaryToken = startSecretdExportAuthnResBody['temporary_token']
-    this._updateChallenges(startSecretdExportAuthnResBody)
-
     return startSecretdExportAuthnResBody
+  }
+
+  /**
+   * Finish a new secretd authentication flow for an authenticated user.
+   *
+   * @public
+   * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
+   */
+   async finishSecretdExportAuthentication () {
+    const AuthService = await this._getAuthService()
+
+    const finishSecretdExportAuthnResponse = await AuthService.FinishSecretdExportAuthn({
+      'body': {}
+    })
+    const finishSecretdExportAuthnResBody = finishSecretdExportAuthnResponse.body
+
+    return finishSecretdExportAuthnResBody
+  }
+
+  /**
+   * Cancel secretd authentication flow for an authenticated user.
+   *
+   * @public
+   * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
+   */
+  async cancelSecretdExportAuthentication () {
+    const AuthService = await this._getAuthService()
+
+    const cancelSecretdExportAuthnResponse = await AuthService.CancelSecretdExportAuthn({
+      'body': {}
+    })
+    const cancelSecretdExportAuthnResBody = cancelSecretdExportAuthnResponse.body
+
+    return cancelSecretdExportAuthnResBody
   }
 
   /**

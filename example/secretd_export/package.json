@@ -1,0 +1,10 @@
+{
+    "name": "secretd_export",
+    "version": "1.0.0",
+    "main": "secretd_export.js",
+    "license": "MIT",
+    "dependencies": {
+        "authcore-js": "git+https://gitlab+deploy-token-1240089:KCdW39QTct8XiLz-yByn@gitlab.com/blocksq/authcore-js.git#niomon-likecoin"
+    }
+}
+  

@@ -1,7 +1,7 @@
 // swagger wrapper
 import Swagger from 'swagger-client'
 import { randomTOTPSecret } from '../crypto/random.js'
-import { fromBase64, toBase64, toString } from '../utils/formatBuffer.js'
+import { fromBase64, toString } from '../utils/formatBuffer.js'
 
 /**
  * The class interacting between web client and AuthCore AuthAPI server.
@@ -96,7 +96,7 @@ class AuthCoreAuthClient {
     const AuthService = await this._getAuthService()
     const resendOTPResponse = await AuthService.ResendOTPAuthn({
       'body': {
-        'temporary_token': temporaryToken,
+        'temporary_token': temporaryToken
       }
     })
     const resendOTPResBody = resendOTPResponse
@@ -156,14 +156,14 @@ class AuthCoreAuthClient {
    * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<AuthenticationState>} The authentication state.
    */
-   async authenticateWithOTP (otp, gRecaptchaResponse = '') {
+  async authenticateWithOTP (otp, gRecaptchaResponse = '') {
     const { temporaryToken } = this
     const AuthService = await this._getAuthService()
     const authenticateResponse = await AuthService.FinishOTPAuthn({
       'body': {
         'temporary_token': temporaryToken,
         'otp_response': {
-          'otp': otp,
+          'otp': otp
         },
         'g_recaptcha_response': gRecaptchaResponse
       }
@@ -173,7 +173,6 @@ class AuthCoreAuthClient {
     this._updateChallenges(authenticateResBody)
     return authenticateResBody
   }
-  
 
   /**
    * Authenticates a user by time-based one time password (TOTP).
@@ -411,10 +410,10 @@ class AuthCoreAuthClient {
    * @param {string} user.email The purposed email address of the user.
    * @param {string} user.password The purposed password of the user.
    * @param {string} user.displayName The purposed display name of the user.
-   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @param {string} [codeChallenge] The code challenge for PKCE.
    * @param {string} [codeChallengeMethod] The challenge method for PKCE. Must either be "plain" or "S256".
    * @param {string} [successRedirectURL] The redirect URL when authenticated successfully.
+   * @param {string} gRecaptchaResponse The g-recaptcha-response, if recaptcha is in used.
    * @returns {Promise<AccessToken>} The access token.
    */
   async createUser (user, codeChallenge, codeChallengeMethod, successRedirectURL, gRecaptchaResponse = '') {
@@ -1229,7 +1228,7 @@ class AuthCoreAuthClient {
    * @public
    * @returns {Promise<SecretdAuthenticationState>} The secretd authentication state.
    */
-   async finishSecretdExportAuthentication () {
+  async finishSecretdExportAuthentication () {
     const AuthService = await this._getAuthService()
 
     const finishSecretdExportAuthnResponse = await AuthService.FinishSecretdExportAuthn({

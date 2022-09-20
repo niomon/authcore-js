@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import spake2js from 'spake2'
+import spake2js from '@niomon/spake2'
 
 import { toBase64 } from '../utils/formatBuffer'
 import { normalize } from '../utils/unicodeNorm'

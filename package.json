@@ -57,7 +57,7 @@
     "base32-encode": "^1.1.0",
     "color": "^3.1.2",
     "lodash": "^4.17.15",
-    "spake2": "https://gitlab.com/blocksq/spake2-js.git#master",
+    "@niomon/spake2": "1.0.4",
     "swagger-client": "^3.8.22"
   },
   "nyc": {
